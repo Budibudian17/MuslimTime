@@ -1,8 +1,12 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Play, SkipBack, SkipForward, History, Search, MoreVertical } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react"
 
 const reciters = [
   { name: "Mishary Bin Rashid Alafasy", img: "/placeholder.svg?width=80&height=80&circle=true&text=MRA" },
@@ -20,6 +24,94 @@ const learningMaterials = [
 ]
 
 export default function Sidebar() {
+  const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setMounted(true)
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!mounted) return null
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        {/* Translation Section Skeleton */}
+        <Card className="bg-white rounded-2xl shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <div className="border border-gray-200 p-3 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-4 w-4" />
+                </div>
+                <Skeleton className="h-1 w-full mb-1" />
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <div className="flex items-center justify-center space-x-4 mt-3">
+                  <Skeleton className="h-5 w-5" />
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                  <Skeleton className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Reciters Section Skeleton */}
+        <Card className="bg-white rounded-2xl shadow-sm">
+          <CardHeader>
+            <Skeleton className="h-6 w-3/4 mb-4" />
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-10 w-full mr-4" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="text-center">
+                  <Skeleton className="h-20 w-20 rounded-full mx-auto mb-2" />
+                  <Skeleton className="h-4 w-24 mx-auto" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Learning Section Skeleton */}
+        <Card className="bg-white rounded-2xl shadow-sm">
+          <CardHeader>
+            <Skeleton className="h-6 w-3/4" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="aspect-square rounded-lg" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {/* Translation Section */}

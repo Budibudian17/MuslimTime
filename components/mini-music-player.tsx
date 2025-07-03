@@ -2,19 +2,8 @@
 
 import { Play, SkipBack, SkipForward, Shuffle, X, MoreVertical } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
-import { useEffect, useState } from "react"
 
 export default function MiniMusicPlayer() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return null
-  }
-
   return (
     <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg text-gray-700 max-w-sm">
       <div className="flex justify-between items-center mb-2">
