@@ -100,7 +100,7 @@ public/                      # Assets (incl. night.png for dark hero)
 - Arabic typography and contrast optimized for readability
 
 <div align="center">
-  <img src="public/people.png" alt="Preview" width="480" />
+  <img src="public/mokupmuslimtime.jpg" alt="Preview"/>
   <br/>
   <sub>Light and dark themes with an Islamic touch.</sub>
 </div>
