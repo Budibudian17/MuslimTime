@@ -3,12 +3,20 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import MiniMusicPlayer from "@/components/mini-music-player"
-import { Moon } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState, useEffect } from "react"
+import { useTheme } from "next-themes"
+import { useAuth } from "@/lib/contexts/AuthContext"
+import { useUserCount } from "@/lib/contexts/UserCountContext"
+import { UserMenu } from "@/components/auth/UserMenu"
+import Link from "next/link"
 
 export default function HeroSection() {
   const [isLoading, setIsLoading] = useState(true)
+  const { user, loading: authLoading } = useAuth()
+  const { formattedCount, isLoading: userCountLoading } = useUserCount()
+  const { theme, setTheme, resolvedTheme } = useTheme()
 
   const tags = [
     "Daily Prayer Times",
@@ -53,7 +61,7 @@ export default function HeroSection() {
                 <Skeleton key={i} className="h-8 w-8 rounded-full border-2 border-white" />
               ))}
             </div>
-            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-4 w-32" />
           </div>
           
           <Skeleton className="mt-6 h-10 w-48 rounded-full" />
@@ -78,12 +86,12 @@ export default function HeroSection() {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-sky-400 to-blue-500 text-white p-8 md:p-12 rounded-3xl overflow-hidden min-h-[550px] flex flex-col">
+    <section className="relative bg-gradient-to-br from-sky-400 to-blue-500 dark:from-slate-900 dark:to-slate-800 text-white p-8 md:p-12 rounded-3xl overflow-hidden min-h-[550px] flex flex-col">
       {/* Background mosque silhouette - simplified */}
       <div
         className="absolute inset-0 opacity-10"
         style={{
-          backgroundImage: `url('/5.png')`,
+          backgroundImage: resolvedTheme === 'dark' ? `url('/night.png')` : `url('/5.png')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -114,12 +122,33 @@ export default function HeroSection() {
           </a>
         </nav>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="text-white/90 hover:text-white">
-            <Moon className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white/90 hover:text-white"
+            onClick={() => setTheme((resolvedTheme === 'dark' ? 'light' : 'dark'))}
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === 'dark' ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
           </Button>
-          <Button className="bg-white hover:bg-gray-100 text-sky-600 rounded-full px-6 py-2 text-sm font-semibold">
-            Sign In
-          </Button>
+          {authLoading ? (
+            <div className="h-10 w-24 bg-white/20 rounded-full animate-pulse"></div>
+          ) : user ? (
+            <UserMenu />
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button asChild variant="ghost" className="text-white/90 hover:text-white">
+                <Link href="/login">Masuk</Link>
+              </Button>
+              <Button asChild className="bg-white hover:bg-gray-100 text-sky-600 rounded-full px-6 py-2 text-sm font-semibold">
+                <Link href="/register">Daftar</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -141,11 +170,26 @@ export default function HeroSection() {
               <AvatarFallback>U3</AvatarFallback>
             </Avatar>
           </div>
-          <p className="text-sm">354k+ Muslims Using MuslimTime Daily</p>
+          <p className="text-sm">
+            {userCountLoading ? (
+              <span className="animate-pulse">Loading...</span>
+            ) : (
+              `${formattedCount} Muslims Using MuslimTime Daily`
+            )}
+          </p>
         </div>
-        <Button className="mt-6 bg-white text-sky-600 hover:bg-gray-100 rounded-full px-6 py-2 font-semibold w-fit">
-          Start Your Spiritual Journey
-        </Button>
+        {user ? (
+          <div className="mt-6">
+            <p className="text-lg mb-2">Selamat datang kembali, {user.displayName}!</p>
+            <Button className="bg-white text-sky-600 hover:bg-gray-100 rounded-full px-6 py-2 font-semibold w-fit">
+              Lanjutkan Perjalanan Spiritual
+            </Button>
+          </div>
+        ) : (
+          <Button asChild className="mt-6 bg-white text-sky-600 hover:bg-gray-100 rounded-full px-6 py-2 font-semibold w-fit">
+            <Link href="/register">Mulai Perjalanan Spiritual</Link>
+          </Button>
+        )}
       </div>
 
       {/* Bottom Content */}

@@ -7,6 +7,9 @@ import { Play, SkipBack, SkipForward, History, Search, MoreVertical } from "luci
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState, useEffect } from "react"
+import { useHistory } from "@/lib/contexts/HistoryContext"
+import { useAuth } from "@/lib/contexts/AuthContext"
+import Link from "next/link"
 
 const reciters = [
   { name: "Mishary Bin Rashid Alafasy", img: "/placeholder.svg?width=80&height=80&circle=true&text=MRA" },
@@ -26,6 +29,8 @@ const learningMaterials = [
 export default function Sidebar() {
   const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const { latestHistory, isLoading: historyLoading } = useHistory()
+  const { user } = useAuth()
 
   useEffect(() => {
     setMounted(true)
@@ -41,7 +46,7 @@ export default function Sidebar() {
     return (
       <div className="space-y-8">
         {/* Translation Section Skeleton */}
-        <Card className="bg-white rounded-2xl shadow-sm">
+        <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <Skeleton className="h-4 w-48" />
@@ -54,7 +59,7 @@ export default function Sidebar() {
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-16 w-full" />
-              <div className="border border-gray-200 p-3 rounded-lg">
+              <div className="border border-gray-200 dark:border-gray-800 p-3 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-4 w-4" />
@@ -75,7 +80,7 @@ export default function Sidebar() {
         </Card>
 
         {/* Reciters Section Skeleton */}
-        <Card className="bg-white rounded-2xl shadow-sm">
+        <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
           <CardHeader>
             <Skeleton className="h-6 w-3/4 mb-4" />
             <div className="flex justify-between items-center">
@@ -115,7 +120,7 @@ export default function Sidebar() {
   return (
     <div className="space-y-8">
       {/* Translation Section */}
-      <Card className="bg-white rounded-2xl shadow-sm">
+      <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center text-xs text-gray-500">
             <p>
@@ -124,48 +129,90 @@ export default function Sidebar() {
                 (Change)
               </a>
             </p>
-            <a href="#" className="flex items-center text-sky-600">
-              <History className="h-3 w-3 mr-1" /> History of Surah
-            </a>
+            <Link href="/explore" className="flex items-center text-sky-600">
+              <History className="h-3 w-3 mr-1" /> Reading History
+            </Link>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-right font-arabic text-2xl text-sky-700 my-4">
-            <p>بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</p>
-            <p>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</p>
-            <p>الرَّحْمَـٰنِ الرَّحِيمِ</p>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            In the Name of Allah—the Most Compassionate, Most Merciful.
-            <br />
-            All praise is for Allah—Lord of all worlds,
-            <br />
-            The Most Compassionate, Most Merciful.
-          </p>
-          {/* Mini Player for Surah */}
-          <div className="border border-gray-200 p-3 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <p className="font-semibold text-sm text-gray-700">Surah Al-Fatihah (The Opener)</p>
-              <MoreVertical className="h-4 w-4 text-gray-400" />
+          {historyLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-16 w-full" />
             </div>
-            <Progress value={60} className="w-full h-1 bg-sky-100 [&>div]:bg-sky-500" />
-            <div className="flex justify-between items-center text-xs text-gray-500 mt-1">
-              <span>00:28</span>
-              <span>00:40</span>
+          ) : latestHistory ? (
+            <>
+              <div className="text-right font-arabic text-2xl text-sky-700 my-4">
+                <p>بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</p>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                In the Name of Allah—the Most Compassionate, Most Merciful.
+              </p>
+              {/* Mini Player for Latest Reading */}
+              <div className="border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <Link 
+                    href={`/surah/${latestHistory.surahNumber}`}
+                    className="font-semibold text-sm text-gray-700 hover:text-sky-600 dark:text-gray-200 dark:hover:text-sky-400"
+                  >
+                    {latestHistory.surahEnglishName} ({latestHistory.surahName})
+                  </Link>
+                  <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  Last read: Ayah {latestHistory.ayahNumber} of {latestHistory.totalAyahs}
+                </div>
+                <Progress 
+                  value={latestHistory.progress || 0} 
+                  className="w-full h-1 bg-sky-100 dark:bg-sky-900 [&>div]:bg-sky-500" 
+                />
+                <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <span>{latestHistory.progress || 0}%</span>
+                  <span>Continue reading</span>
+                </div>
+                <div className="flex items-center justify-center space-x-4 mt-3 text-gray-600 dark:text-gray-300">
+                  <SkipBack className="h-5 w-5 cursor-pointer hover:text-sky-600 dark:hover:text-sky-400" />
+                  <Link 
+                    href={`/surah/${latestHistory.surahNumber}?ayah=${latestHistory.ayahNumber}`}
+                    className="bg-sky-500 text-white rounded-full p-2 hover:bg-sky-600 dark:bg-sky-600"
+                  >
+                    <Play className="h-5 w-5 fill-white" />
+                  </Link>
+                  <SkipForward className="h-5 w-5 cursor-pointer hover:text-sky-600 dark:hover:text-sky-400" />
+                </div>
+              </div>
+            </>
+          ) : user ? (
+            <div className="text-center py-8 text-gray-500">
+              <History className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-sm">No reading history yet</p>
+              <p className="text-xs text-gray-400 mt-1">Start reading Quran to see your progress here</p>
+              <Link 
+                href="/explore"
+                className="inline-block mt-4 text-sky-600 hover:text-sky-700 text-sm font-medium"
+              >
+                Explore Quran →
+              </Link>
             </div>
-            <div className="flex items-center justify-center space-x-4 mt-3 text-gray-600">
-              <SkipBack className="h-5 w-5 cursor-pointer hover:text-sky-600" />
-              <button className="bg-sky-500 text-white rounded-full p-2 hover:bg-sky-600">
-                <Play className="h-5 w-5 fill-white" />
-              </button>
-              <SkipForward className="h-5 w-5 cursor-pointer hover:text-sky-600" />
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <History className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-sm">Sign in to track your reading progress</p>
+              <Link 
+                href="/login"
+                className="inline-block mt-4 text-sky-600 hover:text-sky-700 text-sm font-medium"
+              >
+                Sign In →
+              </Link>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Reciters Section */}
-      <Card className="bg-white rounded-2xl shadow-sm">
+      <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Enjoy Holy Quran recited by your preferred reciters.</CardTitle>
           <div className="flex justify-between items-center mt-2">
@@ -174,7 +221,7 @@ export default function Sidebar() {
               <Input
                 type="text"
                 placeholder="Find your favorite reciter"
-                className="pl-10 rounded-lg border-gray-300 w-full text-sm"
+                className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full text-sm"
               />
             </div>
             <a href="#" className="text-sky-600 hover:text-sky-700 font-medium text-sm whitespace-nowrap">
@@ -190,7 +237,7 @@ export default function Sidebar() {
                   <AvatarImage src={reciter.img || "/placeholder.svg"} alt={reciter.name} />
                   <AvatarFallback>{reciter.name.substring(0, 2)}</AvatarFallback>
                 </Avatar>
-                <p className="text-xs font-medium text-gray-700">{reciter.name}</p>
+                <p className="text-xs font-medium text-gray-700 dark:text-gray-200">{reciter.name}</p>
               </div>
             ))}
           </div>
@@ -198,7 +245,7 @@ export default function Sidebar() {
       </Card>
 
       {/* Learning Section */}
-      <Card className="bg-white rounded-2xl shadow-sm">
+      <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Learn Quran and Islam basics everyday.</CardTitle>
         </CardHeader>

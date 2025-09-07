@@ -119,7 +119,7 @@ export default function PrayerTimes() {
 
   if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <div className="flex justify-between items-center mb-6">
           <div>
             <Skeleton className="h-8 w-36" />
@@ -132,7 +132,7 @@ export default function PrayerTimes() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="p-4 rounded-xl border border-gray-200 bg-gray-50">
+            <div key={i} className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-neutral-800/60">
               <div className="space-y-2">
                 <div>
                   <Skeleton className="h-5 w-16 mb-1" />
@@ -152,9 +152,9 @@ export default function PrayerTimes() {
 
   if (error) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-sm">
+      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <div className="text-center py-8">
-          <p className="text-gray-500 mb-4">{error}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">{error}</p>
           <Button onClick={handleRefresh} variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" /> Try Again
           </Button>
@@ -164,34 +164,34 @@ export default function PrayerTimes() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm">
+    <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Prayer Times</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Prayer Times</h2>
           {location && (
             <>
-              <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
                 <MapPin className="h-3 w-3" />
                 {location.city}, {location.country}
               </p>
-              <p className="text-sm text-gray-500 mt-1">
-                {new Date().toLocaleDateString('en-US', { 
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {mounted ? new Date().toLocaleDateString('en-US', { 
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
-                })}
+                }) : ''}
               </p>
             </>
           )}
         </div>
         <div className="flex gap-2">
           <Link href="/worldwide-prayers">
-            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700" title="View worldwide prayer times">
+            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" title="View worldwide prayer times">
               <Globe2 className="h-5 w-5" />
             </Button>
           </Link>
-          <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
+          <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <RefreshCw className="h-5 w-5" />
           </Button>
         </div>
@@ -200,14 +200,14 @@ export default function PrayerTimes() {
         {prayerTimes.map((prayer) => (
           <div
             key={prayer.name}
-            className="p-4 rounded-xl border bg-gray-50 transition-all duration-200 hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
+            className="p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800 transition-all duration-200 hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
           >
             <div className="space-y-2">
               <div>
-                <h3 className="font-semibold text-gray-800 transition-colors duration-200 group-hover:text-white">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-100 transition-colors duration-200 group-hover:text-white">
                   {prayer.name}
                 </h3>
-                <p className="text-sm text-gray-500 font-arabic transition-colors duration-200 group-hover:text-white">
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-arabic transition-colors duration-200 group-hover:text-white">
                   {prayer.arabicName}
                 </p>
               </div>

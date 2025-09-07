@@ -94,7 +94,13 @@ const popularCities: CityInfo[] = [
 ]
 
 export default function WorldwidePrayersPage() {
-  const [date, setDate] = useState<Date>(new Date())
+  const [mounted, setMounted] = useState(false)
+  const [date, setDate] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setMounted(true)
+    setDate(new Date())
+  }, [])
   const [prayerTimes, setPrayerTimes] = useState<CityPrayerTimes[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -110,7 +116,7 @@ export default function WorldwidePrayersPage() {
   }
 
   const handleSearch = async () => {
-    if (!selectedCity) {
+    if (!selectedCity || !date) {
       setError("Mohon pilih kota terlebih dahulu")
       return
     }
@@ -150,6 +156,7 @@ export default function WorldwidePrayersPage() {
   }
 
   const fetchAllPrayerTimes = async () => {
+    if (!date) return
     setIsLoading(true)
     setError(null)
     try {
@@ -238,6 +245,28 @@ export default function WorldwidePrayersPage() {
     </div>
   )
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white p-3 sm:p-4 md:p-6 rounded-2xl shadow-sm">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-6"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="p-3 sm:p-4 rounded-xl border bg-gray-50">
+                    <div className="h-24"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
@@ -253,7 +282,7 @@ export default function WorldwidePrayersPage() {
               <div className="flex-1 sm:flex-none">
                 <h1 className="text-xl sm:text-2xl font-bold">Jadwal Sholat Seluruh Dunia</h1>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  {format(date, "EEEE, dd MMMM yyyy", { locale: id })}
+                  {date ? format(date, "EEEE, dd MMMM yyyy", { locale: id }) : ''}
                 </p>
               </div>
             </div>
@@ -268,13 +297,13 @@ export default function WorldwidePrayersPage() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(date, "dd MMM yyyy", { locale: id })}
+                    {date ? format(date, "dd MMM yyyy", { locale: id }) : ''}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
                   <Calendar
                     mode="single"
-                    selected={date}
+                    selected={date || undefined}
                     onSelect={(newDate) => newDate && setDate(newDate)}
                     initialFocus
                   />

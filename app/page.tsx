@@ -19,7 +19,7 @@ export default async function HomePage() {
   const limitedSurahs = surahs.slice(0, 18)
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
+    <div className="min-h-screen bg-gray-100 text-gray-800 dark:bg-neutral-950 dark:text-gray-100">
       <main className="container mx-auto px-4 py-8">
         <HeroSection />
         <div className="mt-12 lg:flex lg:space-x-8">

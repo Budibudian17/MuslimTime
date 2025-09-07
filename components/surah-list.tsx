@@ -8,6 +8,7 @@ import Link from "next/link"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useEffect, useState } from "react"
 import { getJuzById } from "@/lib/services/quran"
+import { useNavigationLoading } from "@/hooks/use-navigation-loading"
 
 export interface SurahListItem {
   number: number
@@ -36,10 +37,13 @@ interface SurahListProps {
 }
 
 const JuzList = () => {
+  const [mounted, setMounted] = useState(false)
   const [juzData, setJuzData] = useState<JuzData[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { navigateWithLoading } = useNavigationLoading()
 
   useEffect(() => {
+    setMounted(true)
     const fetchAllJuz = async () => {
       try {
         const promises = Array.from({ length: 30 }, (_, i) => getJuzById(i + 1))
@@ -55,11 +59,11 @@ const JuzList = () => {
     fetchAllJuz()
   }, [])
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} className="p-4 rounded-xl border bg-gray-50 border-gray-200">
+          <div key={i} className="p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <Skeleton className="h-3 w-6" />
@@ -80,7 +84,7 @@ const JuzList = () => {
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-        <Button variant="outline" className="text-gray-600 border-gray-300 rounded-lg">
+        <Button variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg">
           Sort by: Ascending <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
         <div className="relative w-full sm:w-auto">
@@ -88,31 +92,30 @@ const JuzList = () => {
           <Input
             type="text"
             placeholder="Search Juz..."
-            className="pl-10 rounded-lg border-gray-300 w-full sm:w-64"
+            className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full sm:w-64"
           />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {juzData.map((juz) => (
-          <Link
+          <div
             key={juz.number}
-            href={`/juz/${juz.number}`}
-            className="block"
-            passHref
+            onClick={() => navigateWithLoading(`/juz/${juz.number}`, `Loading Juz ${juz.number}...`)}
+            className="block cursor-pointer"
           >
             <div
-              className="p-4 rounded-xl border bg-gray-50 border-gray-200 transition-all duration-200 cursor-pointer hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
+              className="p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800 transition-all duration-200 cursor-pointer hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
               style={{ willChange: 'transform' }}
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-xs text-gray-500 transition-colors duration-200 group-hover:text-white">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
                     {String(juz.number).padStart(2, "0")}
                   </p>
-                  <h3 className="font-semibold mt-1 text-gray-800 transition-colors duration-200 group-hover:text-white">
+                  <h3 className="font-semibold mt-1 text-gray-800 dark:text-gray-100 transition-colors duration-200 group-hover:text-white">
                     Juz {juz.number}
                   </h3>
-                  <p className="text-xs text-gray-500 transition-colors duration-200 group-hover:text-white">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
                     Starts from {juz.startSurah.englishName}
                   </p>
                 </div>
@@ -120,13 +123,13 @@ const JuzList = () => {
                   <p className="text-lg font-arabic text-sky-700 transition-colors duration-200 group-hover:text-white">
                     {juz.startSurah.name}
                   </p>
-                  <p className="text-xs mt-1 text-gray-500 transition-colors duration-200 group-hover:text-white">
+                  <p className="text-xs mt-1 text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
                     {juz.totalAyahs} verses
                   </p>
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </>
@@ -134,6 +137,50 @@ const JuzList = () => {
 }
 
 export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }: SurahListProps) {
+  const { navigateWithLoading } = useNavigationLoading()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+        <Skeleton className="h-10 w-64 mb-6" />
+        <div className="mb-6">
+          <div className="grid w-full grid-cols-3 bg-gray-100 dark:bg-neutral-800 rounded-full p-1">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-9 rounded-full mx-1" />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-6 w-24" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <div key={i} className="p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-6" />
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <div className="text-right space-y-2">
+                  <Skeleton className="h-6 w-16 ml-auto" />
+                  <Skeleton className="h-3 w-12 ml-auto" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="bg-white p-6 rounded-2xl shadow-sm">
@@ -172,10 +219,10 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm">
+    <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
       <h2 className="text-3xl font-bold mb-6">Explore the Holy Quran</h2>
       <Tabs defaultValue="surah" className="mb-6">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-full p-1">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-neutral-800 rounded-full p-1">
           <TabsTrigger
             value="surah"
             className="rounded-full data-[state=active]:bg-sky-500 data-[state=active]:text-white"
@@ -197,7 +244,7 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
         </TabsList>
         <TabsContent value="surah">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-            <Button variant="outline" className="text-gray-600 border-gray-300 rounded-lg">
+            <Button variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg">
               Sort by: Ascending <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
             <div className="relative w-full sm:w-auto">
@@ -205,7 +252,7 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
               <Input
                 type="text"
                 placeholder="Search Surah..."
-                className="pl-10 rounded-lg border-gray-300 w-full sm:w-64"
+                className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full sm:w-64"
               />
             </div>
             {showSeeAllSurah && (
@@ -216,33 +263,32 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {surahs.map((surah) => (
-              <Link
+              <div
                 key={surah.number}
-                href={`/surah/${surah.number}`}
-                className="block"
-                passHref
+                onClick={() => navigateWithLoading(`/surah/${surah.number}`, `Loading ${surah.englishName}...`)}
+                className="block cursor-pointer"
               >
                 <div
-                  className="p-4 rounded-xl border bg-gray-50 border-gray-200 transition-all duration-200 cursor-pointer hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
+                  className="p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800 transition-all duration-200 cursor-pointer hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group"
                   style={{ willChange: 'transform' }}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs text-gray-500 transition-colors duration-200 group-hover:text-white">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
                         {String(surah.number).padStart(2, "0")}
                       </p>
-                      <h3 className="font-semibold mt-1 text-gray-800 transition-colors duration-200 group-hover:text-white">{surah.englishName}</h3>
-                      <p className="text-xs text-gray-500 transition-colors duration-200 group-hover:text-white">{surah.englishNameTranslation}</p>
+                      <h3 className="font-semibold mt-1 text-gray-800 dark:text-gray-100 transition-colors duration-200 group-hover:text-white">{surah.englishName}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">{surah.englishNameTranslation}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-arabic text-sky-700 transition-colors duration-200 group-hover:text-white">{surah.name}</p>
-                      <p className="text-xs mt-1 text-gray-500 transition-colors duration-200 group-hover:text-white">
+                      <p className="text-xs mt-1 text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
                         {surah.numberOfAyahs} verses
                       </p>
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </TabsContent>

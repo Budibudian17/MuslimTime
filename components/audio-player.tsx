@@ -3,11 +3,35 @@
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Pause, Play, SkipBack, SkipForward, Volume2 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function AudioPlayer() {
+  const [mounted, setMounted] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(100)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 w-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="flex-1 mx-4">
+          <div className="h-2 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-2 w-24 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center justify-between">

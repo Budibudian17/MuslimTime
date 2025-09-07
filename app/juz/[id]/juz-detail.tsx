@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState, useRef, useMemo } from "react"
+import React, { useState, useRef, useMemo, useEffect } from "react"
 import { ChevronLeft, X, Play, Pause, SkipBack, SkipForward, Shuffle, Info, Menu, ChevronRight, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useLoading } from "@/lib/contexts/LoadingContext"
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,10 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
   const [currentSurahIndex, setCurrentSurahIndex] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
   const ayahRefs = useRef<{ [key: number]: HTMLElement | null }>({})
+  const translationScrollRef = useRef<HTMLDivElement>(null)
+  const arabicScrollRef = useRef<HTMLDivElement>(null)
+  const isScrollingRef = useRef(false)
+  const { setLoading } = useLoading()
 
   // Group ayahs by surah while maintaining Juz context
   const surahGroups = useMemo(() => {
@@ -103,7 +108,21 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
 
   React.useEffect(() => {
     setMounted(true)
-  }, [])
+    // Hide loading when component is mounted
+    setLoading(false)
+  }, [setLoading])
+
+  // Reset to split view on mobile screens
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024 && showMushafView) {
+        setShowMushafView(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [showMushafView])
 
   // Handle audio time update
   const handleTimeUpdate = () => {
@@ -151,6 +170,43 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  // Handle synchronized scrolling
+  const handleTranslationScroll = () => {
+    if (isScrollingRef.current) return
+    
+    isScrollingRef.current = true
+    if (translationScrollRef.current && arabicScrollRef.current) {
+      const translationScrollTop = translationScrollRef.current.scrollTop
+      const translationScrollHeight = translationScrollRef.current.scrollHeight - translationScrollRef.current.clientHeight
+      const arabicScrollHeight = arabicScrollRef.current.scrollHeight - arabicScrollRef.current.clientHeight
+      
+      const scrollPercentage = translationScrollTop / translationScrollHeight
+      arabicScrollRef.current.scrollTop = scrollPercentage * arabicScrollHeight
+    }
+    
+    setTimeout(() => {
+      isScrollingRef.current = false
+    }, 10)
+  }
+
+  const handleArabicScroll = () => {
+    if (isScrollingRef.current) return
+    
+    isScrollingRef.current = true
+    if (arabicScrollRef.current && translationScrollRef.current) {
+      const arabicScrollTop = arabicScrollRef.current.scrollTop
+      const arabicScrollHeight = arabicScrollRef.current.scrollHeight - arabicScrollRef.current.clientHeight
+      const translationScrollHeight = translationScrollRef.current.scrollHeight - translationScrollRef.current.clientHeight
+      
+      const scrollPercentage = arabicScrollTop / arabicScrollHeight
+      translationScrollRef.current.scrollTop = scrollPercentage * translationScrollHeight
+    }
+    
+    setTimeout(() => {
+      isScrollingRef.current = false
+    }, 10)
+  }
+
   if (!mounted) return null
 
   const renderAyahs = (ayahs: JuzAyah[]) => (
@@ -161,18 +217,18 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
           className={`transition-colors duration-300 ${
             currentAyah === ayah.number 
               ? 'text-sky-900' 
-              : 'text-gray-700'
+              : 'text-gray-700 dark:text-gray-300'
           }`}
         >
           <div className="flex items-center gap-3 mb-2">
             <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm border ${
               currentAyah === ayah.number 
                 ? 'bg-sky-100 text-sky-600 border-sky-300' 
-                : 'bg-sky-50 text-sky-600 border-sky-200'
+                : 'bg-sky-50 dark:bg-neutral-800 text-sky-600 border-sky-200 dark:border-gray-700'
             }`}>
               {ayah.numberInSurah}
             </span>
-            <div className="h-px flex-1 bg-gray-200"></div>
+            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
           </div>
           <p className="text-lg leading-relaxed">
             {ayah.translation}
@@ -208,11 +264,11 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
   )
 
   return (
-    <div className="flex h-screen bg-white relative">
+    <div className="flex h-screen bg-white dark:bg-neutral-950 relative text-gray-900 dark:text-gray-100">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Navigation Header */}
-        <div className="border-b">
+        <div className="border-b border-gray-200 dark:border-gray-800">
           <div className="px-4 py-4 flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -223,11 +279,11 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                 </Link>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                   <span className="font-arabic text-sky-700">{currentSurah.name}</span>
                   <span>{currentSurah.englishName}</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                   <span>{currentSurah.englishNameTranslation}</span>
                   <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                   <span>Juz {initialData.number}</span>
@@ -237,21 +293,24 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              {!showMushafView ? (
-                <LayoutToggle onMushafView={() => setShowMushafView(true)} />
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-600 hover:text-sky-600"
-                  onClick={() => setShowMushafView(false)}
-                >
-                  <LayoutGrid className="h-5 w-5" />
-                </Button>
-              )}
+              {/* Hide layout toggle on mobile/small screens */}
+              <div className="hidden lg:block">
+                {!showMushafView ? (
+                  <LayoutToggle onMushafView={() => setShowMushafView(true)} />
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-600 hover:text-sky-600"
+                    onClick={() => setShowMushafView(false)}
+                  >
+                    <LayoutGrid className="h-5 w-5" />
+                  </Button>
+                )}
+              </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-neutral-800">
                     <Info className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
@@ -290,11 +349,11 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
         {showMushafView ? (
           <div className="flex-1 flex flex-col h-[calc(100vh-64px-88px)]">
             {/* Header with Surah Title */}
-            <div className="py-6 bg-white">
+            <div className="py-6 bg-white dark:bg-neutral-950">
               <div className="text-center">
                 <h2 className="font-arabic text-4xl text-sky-600 mb-2">{currentSurah.name}</h2>
-                <p className="text-xl text-gray-600">{currentSurah.englishName}</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xl text-gray-600 dark:text-gray-300">{currentSurah.englishName}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Juz {initialData.number} • Ayat {currentSurah.ayahRange.start}-{currentSurah.ayahRange.end}
                 </p>
               </div>
@@ -306,12 +365,20 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                 {/* Quran Text and Translation */}
                 <div className="grid h-full grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Translation Card */}
-                  <div className="bg-gray-50 rounded-2xl p-8 shadow-sm overflow-y-auto">
+                  <div 
+                    ref={translationScrollRef}
+                    className="bg-gray-50 dark:bg-neutral-900 rounded-2xl p-8 shadow-sm overflow-y-auto border border-gray-200 dark:border-gray-800"
+                    onScroll={handleTranslationScroll}
+                  >
                     {renderAyahs(currentSurah.ayahs)}
                   </div>
 
                   {/* Arabic Text Card */}
-                  <div className="bg-gray-50 rounded-2xl p-8 shadow-sm overflow-y-auto">
+                  <div 
+                    ref={arabicScrollRef}
+                    className="bg-gray-50 dark:bg-neutral-900 rounded-2xl p-8 shadow-sm overflow-y-auto border border-gray-200 dark:border-gray-800"
+                    onScroll={handleArabicScroll}
+                  >
                     {renderArabicAyahs(currentSurah.ayahs)}
                   </div>
                 </div>
@@ -319,22 +386,84 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-hidden px-4">
-            <div className="h-full max-w-7xl mx-auto">
-              {/* Quran Text and Translation */}
-              <div className="grid h-full grid-cols-1 lg:grid-cols-2 gap-6 py-6">
-                {/* Translation Card */}
-                <div className="bg-gray-50 rounded-2xl p-8 shadow-sm overflow-y-auto">
-                  {renderAyahs(currentSurah.ayahs)}
-                </div>
+          <>
+            {/* Split View Content */}
+            <div className="flex-1 overflow-y-auto pb-32">
+              <div className="space-y-8 py-6">
+                {currentSurah.ayahs.map((ayah) => (
+                  <div 
+                    key={ayah.number} 
+                    ref={(el) => {
+                      ayahRefs.current[ayah.number] = el;
+                    }}
+                    className={`transition-colors duration-300 ${
+                      currentAyah === ayah.number ? 'bg-sky-50/80 rounded-lg' : ''
+                    }`}
+                  >
+                    {/* Mobile Layout: Vertical Stack */}
+                    <div className="lg:hidden px-4 py-6">
+                      {/* Arabic Text - Top */}
+                      <div className="flex items-start justify-end gap-3 mb-4">
+                        <p className={`text-2xl font-arabic leading-relaxed text-right flex-1 ${
+                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800'
+                        }`} style={{ direction: 'rtl' }}>
+                          {ayah.text}
+                        </p>
+                        <div className="flex-shrink-0">
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm border ${
+                            currentAyah === ayah.number 
+                              ? 'bg-sky-100 text-sky-600 border-sky-300' 
+                              : 'bg-sky-50 text-sky-600 border-sky-200'
+                          }`}>
+                            {ayah.numberInSurah}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Translation - Bottom */}
+                      <p className={`text-base leading-relaxed ${
+                        currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700'
+                      }`}>
+                        {ayah.translation}
+                      </p>
+                    </div>
 
-                {/* Arabic Text Card */}
-                <div className="bg-gray-50 rounded-2xl p-8 shadow-sm overflow-y-auto">
-                  {renderArabicAyahs(currentSurah.ayahs)}
-                </div>
+                    {/* Desktop Layout: Horizontal Split */}
+                    <div className="hidden lg:flex items-start">
+                      {/* Translation - Left Side */}
+                      <div className="w-[50%] pl-6 py-4">
+                        <p className={`text-lg leading-relaxed pr-4 ${
+                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700'
+                        }`}>
+                          {ayah.translation}
+                        </p>
+                      </div>
+
+                      {/* Arabic - Right Side */}
+                      <div className="w-[50%] flex items-start justify-end pr-6 py-4">
+                        <div className="flex items-start gap-4">
+                          <p className={`text-3xl font-arabic leading-relaxed text-right ${
+                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800'
+                          }`} style={{ direction: 'rtl' }}>
+                            {ayah.text}
+                          </p>
+                          <div className="flex-shrink-0 mt-2">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm border ${
+                              currentAyah === ayah.number 
+                                ? 'bg-sky-100 text-sky-600 border-sky-300' 
+                                : 'bg-sky-50 text-sky-600 border-sky-200'
+                            }`}>
+                              {ayah.numberInSurah}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Navigation Buttons */}
@@ -388,9 +517,6 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
               {/* Controls */}
               <div className="flex items-center justify-center gap-4">
                 <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
-                  <Shuffle className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
                   <SkipBack className="h-5 w-5" />
                 </Button>
                 <Button 
@@ -407,9 +533,6 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                 </Button>
                 <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
                   <SkipForward className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
-                  <Shuffle className="h-4 w-4" />
                 </Button>
               </div>
             </div>
