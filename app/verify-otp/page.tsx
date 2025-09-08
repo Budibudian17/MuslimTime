@@ -52,7 +52,7 @@ export default function VerifyOTPPage() {
     e.preventDefault();
     
     if (otpCode.length !== 6) {
-      setMessage({ type: 'error', text: 'Kode OTP harus 6 digit' });
+      setMessage({ type: 'error', text: 'OTP code must be 6 digits' });
       return;
     }
 
@@ -68,7 +68,7 @@ export default function VerifyOTPPage() {
         setSuccess(true);
         setMessage({ 
           type: 'success', 
-          text: 'Akun berhasil dibuat! Anda akan dialihkan ke halaman utama.' 
+          text: 'Account created successfully! You will be redirected to the homepage.' 
         });
         
         // Clear session storage
@@ -80,7 +80,7 @@ export default function VerifyOTPPage() {
         }, 2000);
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat memverifikasi kode' });
+      setMessage({ type: 'error', text: 'An error occurred while verifying the code' });
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +91,7 @@ export default function VerifyOTPPage() {
     // For now, we'll just show a message
     setMessage({ 
       type: 'success', 
-      text: 'Kode OTP baru telah dikirim ke email Anda' 
+      text: 'A new OTP code has been sent to your email' 
     });
   };
 
@@ -109,19 +109,19 @@ export default function VerifyOTPPage() {
             <div className="text-center space-y-6">
               <CheckCircle className="h-20 w-20 text-green-400 mx-auto" />
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Verifikasi Berhasil!</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">Verification Successful!</h1>
                 <p className="text-white/70 mb-6">
-                  Akun Anda telah berhasil dibuat dan diverifikasi. Selamat bergabung!
+                  Your account has been created and verified. Welcome aboard!
                 </p>
                 <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 mb-6">
                   <p className="text-green-200 text-sm">
                     ✅ Email: {email}<br/>
-                    ✅ Nama: {displayName}<br/>
-                    ✅ Status: Terverifikasi
+                    ✅ Name: {displayName}<br/>
+                    ✅ Status: Verified
                   </p>
                 </div>
                 <p className="text-white/60 text-sm">
-                  Anda akan dialihkan ke halaman utama dalam beberapa detik...
+                  You will be redirected to the homepage in a few seconds...
                 </p>
               </div>
             </div>
@@ -145,18 +145,18 @@ export default function VerifyOTPPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
               <Shield className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Verifikasi Email</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Email Verification</h1>
             <p className="text-white/70">
-              Masukkan kode 6 digit yang dikirim ke email Anda
+              Enter the 6-digit code sent to your email
             </p>
           </div>
 
           {/* OTP Form */}
           <Card className="backdrop-blur-md bg-white/20 border border-white/30 shadow-2xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-white">Kode Verifikasi</CardTitle>
+              <CardTitle className="text-white">Verification Code</CardTitle>
               <CardDescription className="text-white/70">
-                Kami telah mengirim kode verifikasi ke:
+                We've sent a verification code to:
                 <br />
                 <span className="font-medium text-white">{email}</span>
               </CardDescription>
@@ -166,7 +166,7 @@ export default function VerifyOTPPage() {
                 {/* OTP Input */}
                 <div className="space-y-4">
                   <Label className="text-white text-center block">
-                    Kode Verifikasi (6 digit)
+                    Verification Code (6 digits)
                   </Label>
                   <OTPInput
                     length={6}
@@ -176,7 +176,7 @@ export default function VerifyOTPPage() {
                     className="mb-2"
                   />
                   <p className="text-white/60 text-sm text-center">
-                    Masukkan 6 digit kode yang dikirim ke email Anda
+                    Enter the 6-digit code sent to your email
                   </p>
                 </div>
 
@@ -198,17 +198,17 @@ export default function VerifyOTPPage() {
                   {isLoading ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Memverifikasi...
+                      Verifying...
                     </>
                   ) : (
-                    'Verifikasi Kode'
+                    'Verify Code'
                   )}
                 </Button>
 
                 {/* Resend OTP */}
                 <div className="text-center">
                   <p className="text-white/70 text-sm mb-2">
-                    Tidak menerima kode?
+                    Didn't receive the code?
                   </p>
                   <Button
                     type="button"
@@ -217,7 +217,7 @@ export default function VerifyOTPPage() {
                     disabled={isLoading}
                     className="bg-transparent hover:bg-white/10 text-white border-white/30 hover:border-white/50"
                   >
-                    Kirim Ulang Kode
+                    Resend Code
                   </Button>
                 </div>
               </form>
@@ -231,7 +231,7 @@ export default function VerifyOTPPage() {
               className="inline-flex items-center text-white/70 hover:text-white transition-colors"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali ke Pendaftaran
+              Back to Registration
             </Link>
           </div>
 
@@ -239,10 +239,10 @@ export default function VerifyOTPPage() {
           <div className="mt-8 bg-blue-500/20 border border-blue-500/50 rounded-lg p-4">
             <h4 className="text-blue-200 font-medium mb-2">💡 Tips:</h4>
             <ul className="text-blue-200/80 text-sm space-y-1">
-              <li>• Cek folder spam jika email tidak muncul</li>
-              <li>• Kode berlaku selama 10 menit</li>
-              <li>• Maksimal 3 percobaan salah</li>
-              <li>• Kode terdiri dari 6 digit angka</li>
+              <li>• Check your spam folder if the email doesn’t appear</li>
+              <li>• Code is valid for 10 minutes</li>
+              <li>• Maximum of 3 incorrect attempts</li>
+              <li>• The code consists of 6 digits</li>
             </ul>
           </div>
         </div>

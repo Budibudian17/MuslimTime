@@ -34,7 +34,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Memuat...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -79,7 +79,7 @@ export default function LoginPage() {
               MuslimTime
             </h1>
             <p className="text-white/80 text-base sm:text-lg px-4">
-              Aplikasi Islami untuk Waktu Sholat dan Al-Quran
+              Islamic app for Prayer Times and the Qur'an
             </p>
             <div className="mt-4 flex items-center justify-center space-x-2 text-white/60">
               <div className="w-2 h-2 bg-white/40 rounded-full"></div>
@@ -93,12 +93,12 @@ export default function LoginPage() {
             <div className="mb-6 space-y-3">
               <div className="p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
                 <p className="text-green-200 text-center text-sm">
-                  ✅ Akun berhasil dibuat! Silakan login dengan email dan password yang baru dibuat.
+                  ✅ Account created successfully! Please sign in with your new email and password.
                 </p>
               </div>
               <div className="p-4 bg-blue-500/20 border border-blue-500/50 rounded-lg">
                 <p className="text-blue-200 text-center text-sm">
-                  📧 <strong>Penting:</strong> Pastikan Anda sudah memverifikasi email sebelum login. Cek folder spam jika email tidak muncul.
+                  📧 <strong>Note:</strong> Make sure you've verified your email before signing in. Check your spam folder if you don't see it.
                 </p>
               </div>
             </div>

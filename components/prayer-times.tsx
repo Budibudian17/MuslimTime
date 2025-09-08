@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Clock, MapPin, RefreshCw, Globe2 } from "lucide-react"
 import Link from "next/link"
+import { useNavigationLoading } from "@/hooks/use-navigation-loading"
 
 interface PrayerTime {
   name: string
@@ -25,6 +26,7 @@ export default function PrayerTimes() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { navigateWithLoading } = useNavigationLoading()
 
   const fetchPrayerTimes = async (latitude: number, longitude: number) => {
     try {
@@ -186,11 +188,15 @@ export default function PrayerTimes() {
           )}
         </div>
         <div className="flex gap-2">
-          <Link href="/worldwide-prayers">
-            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" title="View worldwide prayer times">
-              <Globe2 className="h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            title="View worldwide prayer times"
+            onClick={() => navigateWithLoading('/worldwide-prayers', 'Loading Worldwide Prayers...')}
+          >
+            <Globe2 className="h-5 w-5" />
+          </Button>
           <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <RefreshCw className="h-5 w-5" />
           </Button>

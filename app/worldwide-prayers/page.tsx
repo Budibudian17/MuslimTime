@@ -209,22 +209,22 @@ export default function WorldwidePrayersPage() {
   const renderPrayerTimeCard = (cityData: CityPrayerTimes, isSearchResult = false) => (
     <div
       className={cn(
-        "p-4 rounded-xl border bg-gray-50 border-gray-200 transition-all duration-200 hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group",
-        isSearchResult && "border-sky-200 bg-sky-50"
+        "p-4 rounded-xl border bg-gray-50 dark:bg-neutral-800/60 border-gray-200 dark:border-gray-800 transition-all duration-200 hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group",
+        isSearchResult && "border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-900/20"
       )}
     >
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="font-semibold text-gray-800 transition-colors duration-200 group-hover:text-white">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 transition-colors duration-200 group-hover:text-white">
             {cityData.label}
           </h3>
-          <p className="text-sm text-gray-500 flex items-center gap-1 transition-colors duration-200 group-hover:text-white">
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors duration-200 group-hover:text-white">
             <MapPin className="h-3 w-3" />
             {cityData.country}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-500 transition-colors duration-200 group-hover:text-white">
+          <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200 group-hover:text-white">
             {cityData.timezone}
           </p>
         </div>
@@ -232,11 +232,11 @@ export default function WorldwidePrayersPage() {
       <div className="grid grid-cols-2 gap-2">
         {prayerNameMapping.map((prayer) => (
           <div key={prayer.key} className="flex items-center gap-2">
-            <Clock className="h-3 w-3 text-sky-600 transition-colors duration-200 group-hover:text-white" />
-            <span className="text-sm text-gray-600 transition-colors duration-200 group-hover:text-white">
+            <Clock className="h-3 w-3 text-sky-600 dark:text-sky-400 transition-colors duration-200 group-hover:text-white" />
+            <span className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-200 group-hover:text-white">
               {prayer.displayName}:
             </span>
-            <span className="text-sm font-medium text-sky-600 transition-colors duration-200 group-hover:text-white">
+            <span className="text-sm font-medium text-sky-600 dark:text-sky-400 transition-colors duration-200 group-hover:text-white">
               {cityData.times[prayer.key]}
             </span>
           </div>
@@ -268,14 +268,14 @@ export default function WorldwidePrayersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-neutral-950 p-2 sm:p-4 md:p-6 text-gray-800 dark:text-gray-100">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white p-3 sm:p-4 md:p-6 rounded-2xl shadow-sm mb-6">
+        <div className="bg-white dark:bg-neutral-900 p-3 sm:p-4 md:p-6 rounded-2xl shadow-sm mb-6 border border-gray-200 dark:border-gray-800">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <Link href="/">
-                <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+                <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-700 dark:text-gray-200">
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
               </Link>
@@ -292,7 +292,7 @@ export default function WorldwidePrayersPage() {
                   <Button 
                     variant="outline" 
                     className={cn(
-                      "justify-start text-left font-normal w-full sm:w-auto",
+                      "justify-start text-left font-normal w-full sm:w-auto border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100",
                       "text-sm sm:text-base"
                     )}
                   >
@@ -313,7 +313,7 @@ export default function WorldwidePrayersPage() {
                 onClick={fetchAllPrayerTimes}
                 variant="ghost"
                 size="icon"
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <RefreshCw className="h-5 w-5" />
               </Button>
@@ -321,10 +321,10 @@ export default function WorldwidePrayersPage() {
           </div>
 
           {/* Search Form */}
-          <Card className="mb-6 sm:mb-8 border-gray-200">
+          <Card className="mb-6 sm:mb-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900">
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Cari Kota
                 </label>
                 <Popover open={citySearchOpen} onOpenChange={setCitySearchOpen}>
@@ -333,15 +333,15 @@ export default function WorldwidePrayersPage() {
                       variant="outline"
                       role="combobox"
                       aria-expanded={citySearchOpen}
-                      className="w-full justify-between text-left font-normal border-gray-300"
+                      className="w-full justify-between text-left font-normal border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
                     >
                       {selectedCity ? selectedCity.label : "Pilih kota..."}
                       <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
+                  <PopoverContent className="w-full p-0 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-gray-800">
                     <Command>
-                      <CommandInput placeholder="Cari kota..." />
+                      <CommandInput placeholder="Cari kota..." className="bg-transparent" />
                       <CommandList>
                         <CommandEmpty>Kota tidak ditemukan.</CommandEmpty>
                         <CommandGroup>
@@ -407,7 +407,7 @@ export default function WorldwidePrayersPage() {
                 placeholder="Filter kota populer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-64 text-sm"
+                className="w-full sm:w-64 text-sm bg-white dark:bg-neutral-900 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
 

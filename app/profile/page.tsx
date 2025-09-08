@@ -80,7 +80,7 @@ export default function ProfilePage() {
       } else {
         setMessage({ 
           type: 'success', 
-          text: 'Profile berhasil diperbarui!' 
+          text: 'Profile updated successfully!' 
         });
         
         // Refresh user data to update UI
@@ -95,7 +95,7 @@ export default function ProfilePage() {
     } catch (error) {
       setMessage({ 
         type: 'error', 
-        text: 'Terjadi kesalahan saat memperbarui profile' 
+        text: 'An error occurred while updating profile' 
       });
     } finally {
       setIsLoading(false);
@@ -110,7 +110,7 @@ export default function ProfilePage() {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setMessage({ 
         type: 'error', 
-        text: 'Password baru dan konfirmasi password tidak cocok' 
+        text: 'New password and confirmation do not match' 
       });
       setIsLoading(false);
       return;
@@ -119,12 +119,12 @@ export default function ProfilePage() {
     try {
       setMessage({ 
         type: 'error', 
-        text: 'Fitur perubahan password belum tersedia' 
+        text: 'Password change feature is not available yet' 
       });
     } catch (error) {
       setMessage({ 
         type: 'error', 
-        text: 'Terjadi kesalahan saat mengubah password' 
+        text: 'An error occurred while changing password' 
       });
     } finally {
       setIsLoading(false);
@@ -179,12 +179,12 @@ export default function ProfilePage() {
 
     // Validate file
     if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'File harus berupa gambar' });
+      setMessage({ type: 'error', text: 'File must be an image' });
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) { // Increased to 10MB for original file
-      setMessage({ type: 'error', text: 'Ukuran file maksimal 10MB' });
+      setMessage({ type: 'error', text: 'Maximum file size is 10MB' });
       return;
     }
 
@@ -209,12 +209,12 @@ export default function ProfilePage() {
         setMessage({ type: 'error', text: error });
         setPhotoPreview(null);
       } else {
-        setMessage({ type: 'success', text: 'Photo profile berhasil diupdate!' });
+        setMessage({ type: 'success', text: 'Profile photo updated successfully!' });
         refreshUser();
         setPhotoPreview(null);
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat upload photo' });
+      setMessage({ type: 'error', text: 'An error occurred while uploading photo' });
       setPhotoPreview(null);
     } finally {
       setIsUploadingPhoto(false);
@@ -234,11 +234,11 @@ export default function ProfilePage() {
       if (error) {
         setMessage({ type: 'error', text: error });
       } else {
-        setMessage({ type: 'success', text: 'Photo profile berhasil dihapus!' });
+        setMessage({ type: 'success', text: 'Profile photo removed successfully!' });
         refreshUser();
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat menghapus photo' });
+      setMessage({ type: 'error', text: 'An error occurred while removing photo' });
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -283,10 +283,10 @@ export default function ProfilePage() {
                 <User className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                Profile Saya
+                My Profile
               </h1>
               <p className="text-white/80 text-base sm:text-lg px-4">
-                Kelola informasi akun dan keamanan Anda
+                Manage your account information and security
               </p>
             </div>
 
@@ -308,12 +308,12 @@ export default function ProfilePage() {
                   {user?.emailVerified ? (
                     <div className="flex items-center space-x-1 text-green-300">
                       <CheckCircle className="h-4 w-4" />
-                      <span className="text-sm">Email Terverifikasi</span>
+                      <span className="text-sm">Email Verified</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-1 text-yellow-300">
                       <AlertCircle className="h-4 w-4" />
-                      <span className="text-sm">Email Belum Terverifikasi</span>
+                      <span className="text-sm">Email Not Verified</span>
                     </div>
                   )}
                 </div>
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                     className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/70"
                   >
                     <Shield className="w-4 h-4 mr-2" />
-                    Keamanan
+                    Security
                   </TabsTrigger>
                 </TabsList>
 
@@ -360,7 +360,7 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="displayName" className="text-white/90 font-medium">
-                          Nama Lengkap
+                          Full Name
                         </Label>
                         <Input
                           id="displayName"
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                           <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                         </div>
                         <p className="text-white/60 text-sm">
-                          Email tidak dapat diubah. Hubungi administrator jika perlu perubahan.
+                          Email cannot be changed. Contact an administrator if you need updates.
                         </p>
                       </div>
                     </div>
@@ -399,7 +399,7 @@ export default function ProfilePage() {
                     >
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       <Save className="mr-2 h-4 w-4" />
-                      Simpan Perubahan
+                      Save Changes
                     </Button>
                   </form>
                 </TabsContent>
@@ -426,16 +426,16 @@ export default function ProfilePage() {
                         )}
                       </div>
                       <p className="text-white/70 text-sm mt-2">
-                        {user?.photoURL ? 'Photo profile saat ini' : 'Belum ada photo profile'}
+                        {user?.photoURL ? 'Current profile photo' : 'No profile photo yet'}
                       </p>
                     </div>
 
                     {/* Upload Section */}
                     <div className="space-y-4">
                       <div className="text-center">
-                        <h3 className="text-lg font-semibold text-white mb-2">Upload Photo Baru</h3>
+                        <h3 className="text-lg font-semibold text-white mb-2">Upload New Photo</h3>
                         <p className="text-white/70 text-sm mb-4">
-                          Pilih gambar dengan format JPG, PNG, atau GIF. Maksimal 10MB (akan dikompres otomatis).
+                          Choose JPG, PNG, or GIF up to 10MB (will be compressed automatically).
                         </p>
                         {isUploadingPhoto && (
                           <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 mb-4">
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                           ) : (
                             <Upload className="mr-2 h-4 w-4" />
                           )}
-                          Pilih Photo
+                          Choose Photo
                         </Button>
 
                         {user?.photoURL && (
@@ -483,7 +483,7 @@ export default function ProfilePage() {
                             ) : (
                               <Trash2 className="mr-2 h-4 w-4" />
                             )}
-                            Hapus Photo
+                            Remove Photo
                           </Button>
                         )}
                       </div>
@@ -514,13 +514,13 @@ export default function ProfilePage() {
 
                     {/* Tips */}
                     <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-4">
-                      <h4 className="text-blue-200 font-medium mb-2">💡 Tips Photo Profile:</h4>
+                      <h4 className="text-blue-200 font-medium mb-2">💡 Profile Photo Tips:</h4>
                       <ul className="text-blue-200/80 text-sm space-y-1">
-                        <li>• Gunakan foto yang jelas dan terlihat wajah Anda</li>
-                        <li>• Format yang didukung: JPG, PNG, GIF</li>
-                        <li>• Ukuran maksimal: 10MB (akan dikompres otomatis)</li>
-                        <li>• Rasio 1:1 (persegi) akan terlihat lebih baik</li>
-                        <li>• Photo akan dikompres ke resolusi 800px untuk performa optimal</li>
+                        <li>• Use a clear photo with your face visible</li>
+                        <li>• Supported formats: JPG, PNG, GIF</li>
+                        <li>• Max size: 10MB (will be compressed automatically)</li>
+                        <li>• 1:1 ratio (square) looks best</li>
+                        <li>• Photo will be compressed to 800px for optimal performance</li>
                       </ul>
                     </div>
                   </div>
@@ -532,7 +532,7 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="currentPassword" className="text-white/90 font-medium">
-                          Password Saat Ini
+                          Current Password
                         </Label>
                         <div className="relative">
                           <Input
@@ -562,7 +562,7 @@ export default function ProfilePage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="newPassword" className="text-white/90 font-medium">
-                          Password Baru
+                          New Password
                         </Label>
                         <div className="relative">
                           <Input
@@ -592,7 +592,7 @@ export default function ProfilePage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="confirmPassword" className="text-white/90 font-medium">
-                          Konfirmasi Password Baru
+                          Confirm New Password
                         </Label>
                         <div className="relative">
                           <Input
@@ -628,7 +628,7 @@ export default function ProfilePage() {
                     >
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       <Key className="mr-2 h-4 w-4" />
-                      Ubah Password
+                      Change Password
                     </Button>
                   </form>
                 </TabsContent>
@@ -638,7 +638,7 @@ export default function ProfilePage() {
               <div className="mt-8 text-center">
                 <Button asChild variant="ghost" className="text-white/70 hover:text-white">
                   <Link href="/">
-                    ← Kembali ke Beranda
+                    ← Back to Home
                   </Link>
                 </Button>
               </div>

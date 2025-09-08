@@ -108,17 +108,11 @@ export default function HeroSection() {
           <span className="font-bold text-3xl text-white">MuslimTime</span>
         </div>
         <nav className="hidden md:flex items-center space-x-6 text-white/90">
-          <a href="#" className="hover:text-white">
-            Reciters
-          </a>
-          <a href="#" className="hover:text-white">
+          {/* <a href="#" className="hover:text-white">
             Music
-          </a>
-          <a href="#" className="hover:text-white">
+          </a> */}
+          <a href="/about" className="hover:text-white">
             About Us
-          </a>
-          <a href="#" className="hover:text-white">
-            Blog
           </a>
         </nav>
         <div className="flex items-center space-x-4">
@@ -142,10 +136,10 @@ export default function HeroSection() {
           ) : (
             <div className="flex items-center space-x-2">
               <Button asChild variant="ghost" className="text-white/90 hover:text-white">
-                <Link href="/login">Masuk</Link>
+                <Link href="/login">Sign In</Link>
               </Button>
               <Button asChild className="bg-white hover:bg-gray-100 text-sky-600 rounded-full px-6 py-2 text-sm font-semibold">
-                <Link href="/register">Daftar</Link>
+                <Link href="/register">Sign Up</Link>
               </Button>
             </div>
           )}
@@ -180,14 +174,14 @@ export default function HeroSection() {
         </div>
         {user ? (
           <div className="mt-6">
-            <p className="text-lg mb-2">Selamat datang kembali, {user.displayName}!</p>
+            <p className="text-lg mb-2">Welcome back, {user.displayName}!</p>
             <Button className="bg-white text-sky-600 hover:bg-gray-100 rounded-full px-6 py-2 font-semibold w-fit">
-              Lanjutkan Perjalanan Spiritual
+              Continue Spiritual Journey
             </Button>
           </div>
         ) : (
           <Button asChild className="mt-6 bg-white text-sky-600 hover:bg-gray-100 rounded-full px-6 py-2 font-semibold w-fit">
-            <Link href="/register">Mulai Perjalanan Spiritual</Link>
+            <Link href="/register">Start Your Spiritual Journey</Link>
           </Button>
         )}
       </div>

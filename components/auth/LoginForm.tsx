@@ -15,8 +15,8 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 const loginSchema = z.object({
-  email: z.string().email('Email tidak valid'),
-  password: z.string().min(6, 'Password minimal 6 karakter'),
+  email: z.string().email('Invalid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -52,7 +52,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
       } else if (user) {
         // Check if email is verified
         if (!user.emailVerified) {
-          setError('Email belum terverifikasi. Silakan cek email Anda dan klik link verifikasi.');
+          setError('Email not verified. Please check your inbox and click the verification link.');
           return;
         }
         
@@ -62,7 +62,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
         }
       }
     } catch (err) {
-      setError('Terjadi kesalahan saat login');
+      setError('An error occurred while logging in');
     } finally {
       setIsLoading(false);
     }
@@ -71,9 +71,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
   return (
     <div className="w-full">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Masuk</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Sign In</h2>
         <p className="text-white/70">
-          Masukkan email dan password Anda untuk masuk ke akun
+          Enter your email and password to access your account
         </p>
       </div>
       <div className="space-y-4">
@@ -89,7 +89,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
             <Input
               id="email"
               type="email"
-              placeholder="nama@email.com"
+              placeholder="name@email.com"
               {...register('email')}
               disabled={isLoading}
               className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30"
@@ -105,7 +105,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Masukkan password"
+                placeholder="Enter password"
                 {...register('password')}
                 disabled={isLoading}
                 className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30 pr-10"
@@ -143,14 +143,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
                 htmlFor="remember-me" 
                 className="text-white/90 text-sm cursor-pointer"
               >
-                Ingat saya
+                Remember me
               </Label>
             </div>
             <Link
               href="/forgot-password"
               className="text-sm text-white hover:text-white/80 underline underline-offset-4 transition-colors"
             >
-              Lupa password?
+              Forgot password?
             </Link>
           </div>
 
@@ -160,18 +160,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, redirectTo = '/
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Masuk
+            Sign In
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm space-y-2">
           <div>
-            <span className="text-white/60">Belum punya akun? </span>
+            <span className="text-white/60">Don't have an account? </span>
             <Link
               href="/register"
               className="font-medium text-white hover:text-white/80 underline underline-offset-4 transition-colors"
             >
-              Daftar sekarang
+              Create one now
             </Link>
           </div>
           {/* <div>

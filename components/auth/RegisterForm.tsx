@@ -14,12 +14,12 @@ import { Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 const registerSchema = z.object({
-  displayName: z.string().min(2, 'Nama minimal 2 karakter'),
-  email: z.string().email('Email tidak valid'),
-  password: z.string().min(6, 'Password minimal 6 karakter'),
-  confirmPassword: z.string().min(6, 'Konfirmasi password minimal 6 karakter'),
+  displayName: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters'),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Password tidak cocok",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 });
 
@@ -67,7 +67,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
         onSuccess?.();
       }
     } catch (err) {
-      setError('Terjadi kesalahan saat mendaftar');
+      setError('An error occurred during registration');
     } finally {
       setIsLoading(false);
     }
@@ -79,18 +79,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
         <div className="text-center space-y-4">
           <CheckCircle className="h-16 w-16 text-green-400 mx-auto" />
           <div>
-            <h3 className="text-lg font-semibold text-white">Kode Verifikasi Dikirim!</h3>
+            <h3 className="text-lg font-semibold text-white">Verification Code Sent!</h3>
             <p className="text-white/70 mb-4">
-              Kami telah mengirim kode verifikasi 6 digit ke email Anda. Silakan cek email dan masukkan kode tersebut.
+              We've sent a 6-digit verification code to your email. Please check your inbox and enter the code.
             </p>
             <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 mb-4">
               <p className="text-blue-200 text-sm">
-                🔐 <strong>Kode OTP:</strong> Masukkan 6 digit kode yang dikirim ke email Anda.
+                🔐 <strong>OTP Code:</strong> Enter the 6-digit code sent to your email.
               </p>
             </div>
             <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 mb-4">
               <p className="text-yellow-200 text-sm">
-                ⏰ <strong>Catatan:</strong> Kode berlaku selama 10 menit dan maksimal 3 percobaan.
+                ⏰ <strong>Note:</strong> The code is valid for 10 minutes and allows up to 3 attempts.
               </p>
             </div>
             <div className="flex space-x-2">
@@ -98,13 +98,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
                 onClick={() => window.location.href = '/verify-otp'}
                 className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-white border border-blue-500/30 hover:border-blue-500/50"
               >
-                Verifikasi Kode OTP
+                Verify OTP Code
               </Button>
               <Button 
                 onClick={() => window.location.href = '/login'}
                 className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 hover:border-white/50"
               >
-                Ke Halaman Login
+                Go to Login
               </Button>
             </div>
           </div>
@@ -116,9 +116,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
   return (
     <div className="w-full">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Daftar</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Sign Up</h2>
         <p className="text-white/70">
-          Buat akun baru untuk mengakses semua fitur
+          Create a new account to access all features
         </p>
       </div>
       <div className="space-y-4">
@@ -130,11 +130,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="displayName" className="text-white/90 font-medium">Nama Lengkap</Label>
+            <Label htmlFor="displayName" className="text-white/90 font-medium">Full Name</Label>
             <Input
               id="displayName"
               type="text"
-              placeholder="Masukkan nama lengkap"
+              placeholder="Enter full name"
               {...register('displayName')}
               disabled={isLoading}
               className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30"
@@ -149,7 +149,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
             <Input
               id="email"
               type="email"
-              placeholder="nama@email.com"
+              placeholder="name@email.com"
               {...register('email')}
               disabled={isLoading}
               className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30"
@@ -165,7 +165,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Masukkan password"
+                placeholder="Enter password"
                 {...register('password')}
                 disabled={isLoading}
                 className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30 pr-10"
@@ -191,12 +191,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-white/90 font-medium">Konfirmasi Password</Label>
+            <Label htmlFor="confirmPassword" className="text-white/90 font-medium">Confirm Password</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Konfirmasi password"
+                placeholder="Confirm password"
                 {...register('confirmPassword')}
                 disabled={isLoading}
                 className="bg-white/20 border-white/30 text-white placeholder:text-white/60 focus:border-white/50 focus:ring-white/30 pr-10"
@@ -227,17 +227,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, redirectT
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Daftar
+            Sign Up
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm">
-          <span className="text-white/60">Sudah punya akun? </span>
+          <span className="text-white/60">Already have an account? </span>
           <Link
             href="/login"
             className="font-medium text-white hover:text-white/80 underline underline-offset-4 transition-colors"
           >
-            Masuk di sini
+            Sign in here
           </Link>
         </div>
       </div>

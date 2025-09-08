@@ -41,6 +41,8 @@ const JuzList = () => {
   const [juzData, setJuzData] = useState<JuzData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { navigateWithLoading } = useNavigationLoading()
+  const [juzQuery, setJuzQuery] = useState("")
+  const [isJuzAsc, setIsJuzAsc] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -81,11 +83,26 @@ const JuzList = () => {
     )
   }
 
+  const filteredJuz = juzData
+    .filter((juz) => {
+      const q = juzQuery.trim().toLowerCase()
+      if (!q) return true
+      return (
+        String(juz.number).includes(q) ||
+        juz.startSurah.englishName.toLowerCase().includes(q)
+      )
+    })
+    .sort((a, b) => (isJuzAsc ? a.number - b.number : b.number - a.number))
+
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-        <Button variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg">
-          Sort by: Ascending <ChevronDown className="ml-2 h-4 w-4" />
+        <Button
+          variant="outline"
+          className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg"
+          onClick={() => setIsJuzAsc((v) => !v)}
+        >
+          Sort by: {isJuzAsc ? "Ascending" : "Descending"} <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -93,11 +110,13 @@ const JuzList = () => {
             type="text"
             placeholder="Search Juz..."
             className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full sm:w-64"
+            value={juzQuery}
+            onChange={(e) => setJuzQuery(e.target.value)}
           />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {juzData.map((juz) => (
+        {filteredJuz.map((juz) => (
           <div
             key={juz.number}
             onClick={() => navigateWithLoading(`/juz/${juz.number}`, `Loading Juz ${juz.number}...`)}
@@ -139,6 +158,8 @@ const JuzList = () => {
 export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }: SurahListProps) {
   const { navigateWithLoading } = useNavigationLoading()
   const [mounted, setMounted] = useState(false)
+  const [surahQuery, setSurahQuery] = useState("")
+  const [isSurahAsc, setIsSurahAsc] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -218,6 +239,18 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
     )
   }
 
+  const filteredSurahs = surahs
+    .filter((s) => {
+      const q = surahQuery.trim().toLowerCase()
+      if (!q) return true
+      return (
+        String(s.number).includes(q) ||
+        s.englishName.toLowerCase().includes(q) ||
+        s.englishNameTranslation.toLowerCase().includes(q)
+      )
+    })
+    .sort((a, b) => (isSurahAsc ? a.number - b.number : b.number - a.number))
+
   return (
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
       <h2 className="text-3xl font-bold mb-6">Explore the Holy Quran</h2>
@@ -244,8 +277,12 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
         </TabsList>
         <TabsContent value="surah">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-            <Button variant="outline" className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg">
-              Sort by: Ascending <ChevronDown className="ml-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              className="text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 rounded-lg"
+              onClick={() => setIsSurahAsc((v) => !v)}
+            >
+              Sort by: {isSurahAsc ? "Ascending" : "Descending"} <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
             <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -253,6 +290,8 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
                 type="text"
                 placeholder="Search Surah..."
                 className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full sm:w-64"
+                value={surahQuery}
+                onChange={(e) => setSurahQuery(e.target.value)}
               />
             </div>
             {showSeeAllSurah && (
@@ -262,7 +301,7 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {surahs.map((surah) => (
+            {filteredSurahs.map((surah) => (
               <div
                 key={surah.number}
                 onClick={() => navigateWithLoading(`/surah/${surah.number}`, `Loading ${surah.englishName}...`)}

@@ -215,32 +215,9 @@ export default function Sidebar() {
       <Card className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Enjoy Holy Quran recited by your preferred reciters.</CardTitle>
-          <div className="flex justify-between items-center mt-2">
-            <div className="relative w-full sm:w-auto flex-grow mr-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Find your favorite reciter"
-                className="pl-10 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 w-full text-sm"
-              />
-            </div>
-            <a href="#" className="text-sky-600 hover:text-sky-700 font-medium text-sm whitespace-nowrap">
-              See All Reciters &gt;
-            </a>
-          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {reciters.map((reciter) => (
-              <div key={reciter.name} className="text-center">
-                <Avatar className="h-20 w-20 mx-auto mb-2 border-2 border-gray-200">
-                  <AvatarImage src={reciter.img || "/placeholder.svg"} alt={reciter.name} />
-                  <AvatarFallback>{reciter.name.substring(0, 2)}</AvatarFallback>
-                </Avatar>
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-200">{reciter.name}</p>
-              </div>
-            ))}
-          </div>
+          <div className="py-8 text-center text-gray-600 dark:text-gray-300">Coming Soon</div>
         </CardContent>
       </Card>
 
@@ -250,17 +227,7 @@ export default function Sidebar() {
           <CardTitle className="text-xl font-semibold">Learn Quran and Islam basics everyday.</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            {learningMaterials.map((item) => (
-              <div key={item.title} className="text-center">
-                <img
-                  src={item.img || "/placeholder.svg"}
-                  alt={item.title}
-                  className="rounded-lg mb-2 mx-auto w-full h-auto aspect-square object-cover"
-                />
-              </div>
-            ))}
-          </div>
+          <div className="py-8 text-center text-gray-600 dark:text-gray-300">Coming Soon</div>
         </CardContent>
       </Card>
     </div>
