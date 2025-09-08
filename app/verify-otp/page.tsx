@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { completeRegistration } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { OTPInput } from '@/components/ui/otp-input';
 import { CheckCircle, ArrowLeft, RefreshCw, Shield } from 'lucide-react';
 import Link from 'next/link';
 
-export default function VerifyOTPPage() {
+function VerifyOTPContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [otpCode, setOtpCode] = useState('');
@@ -248,5 +248,32 @@ export default function VerifyOTPPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyOTPPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
+        
+        {/* Loading Content */}
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="text-center space-y-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mx-auto">
+                <RefreshCw className="h-8 w-8 text-white animate-spin" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Loading...</h1>
+              <p className="text-white/70">Preparing verification page</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyOTPContent />
+    </Suspense>
   );
 }
