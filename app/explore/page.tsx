@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getAllSurahs } from '@/lib/services/quran';
+import { getAllSurahs, getJuzById } from '@/lib/services/quran';
 import SurahList from '@/components/surah-list';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -7,7 +7,45 @@ async function SurahListContainer() {
   const response = await getAllSurahs();
   const surahs = response.data;
 
-  return <SurahList surahs={surahs} />;
+  // Pre-load Juz data for explore page (all 30 Juz)
+  let juzData: any[] = [];
+  let juzError = false;
+  
+  try {
+    // Load all 30 Juz in batches to avoid timeout
+    const batchSize = 10;
+    const totalJuz = 30;
+    
+    for (let i = 0; i < totalJuz; i += batchSize) {
+      const batch = Array.from({ length: Math.min(batchSize, totalJuz - i) }, (_, j) => 
+        getJuzById(i + j + 1)
+      );
+      
+      try {
+        const batchResults = await Promise.all(batch);
+        juzData.push(...batchResults);
+        
+        // Small delay between batches
+        if (i + batchSize < totalJuz) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+      } catch (batchError) {
+        console.error(`Error fetching Juz batch ${i + 1}-${i + batchSize}:`, batchError);
+        // Continue with next batch
+      }
+    }
+  } catch (error) {
+    console.error("Error pre-loading Juz data:", error);
+    juzError = true;
+  }
+
+  return (
+    <SurahList 
+      surahs={surahs} 
+      preloadedJuzData={juzData.length > 0 ? juzData : undefined}
+      juzLoadingError={juzError}
+    />
+  );
 }
 
 export default function ExplorePage() {

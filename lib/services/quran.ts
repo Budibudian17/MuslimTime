@@ -1,6 +1,6 @@
 import { QuranResponse } from '../types/quran';
 
-const QURAN_API_BASE_URL = 'http://api.alquran.cloud/v1';
+const QURAN_API_BASE_URL = 'https://api.alquran.cloud/v1';
 
 export async function getAllSurahs(): Promise<QuranResponse> {
   try {
@@ -112,7 +112,7 @@ interface JuzResponse {
 
 export const getJuzById = async (juzNumber: number) => {
   try {
-    const response = await fetch(`http://api.alquran.cloud/v1/juz/${juzNumber}/quran-uthmani`);
+    const response = await fetch(`https://api.alquran.cloud/v1/juz/${juzNumber}/quran-uthmani`);
     const data: JuzResponse = await response.json();
     
     if (data.code === 200 && data.status === "OK") {
@@ -159,7 +159,7 @@ interface JuzTranslationResponse {
 
 export const getJuzTranslation = async (juzNumber: number) => {
   try {
-    const response = await fetch(`http://api.alquran.cloud/v1/juz/${juzNumber}/en.asad`);
+    const response = await fetch(`https://api.alquran.cloud/v1/juz/${juzNumber}/en.asad`);
     const data: JuzTranslationResponse = await response.json();
     
     if (data.code === 200 && data.status === "OK") {

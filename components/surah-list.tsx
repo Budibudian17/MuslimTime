@@ -30,13 +30,54 @@ interface JuzData {
   totalAyahs: number
 }
 
+// Static Juz data as fallback - all 30 Juz
+const STATIC_JUZ_DATA: JuzData[] = [
+  { number: 1, startSurah: { name: "الفاتحة", englishName: "Al-Fatihah", englishNameTranslation: "The Opening", number: 1 }, totalAyahs: 148 },
+  { number: 2, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 3, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 4, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 5, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 6, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 7, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 8, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 9, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 10, startSurah: { name: "البقرة", englishName: "Al-Baqarah", englishNameTranslation: "The Cow", number: 2 }, totalAyahs: 111 },
+  { number: 11, startSurah: { name: "التوبة", englishName: "At-Tawbah", englishNameTranslation: "The Repentance", number: 9 }, totalAyahs: 149 },
+  { number: 12, startSurah: { name: "هود", englishName: "Hud", englishNameTranslation: "Hud", number: 11 }, totalAyahs: 123 },
+  { number: 13, startSurah: { name: "يوسف", englishName: "Yusuf", englishNameTranslation: "Joseph", number: 12 }, totalAyahs: 111 },
+  { number: 14, startSurah: { name: "الحجر", englishName: "Al-Hijr", englishNameTranslation: "The Rocky Tract", number: 15 }, totalAyahs: 99 },
+  { number: 15, startSurah: { name: "الإسراء", englishName: "Al-Isra", englishNameTranslation: "The Night Journey", number: 17 }, totalAyahs: 111 },
+  { number: 16, startSurah: { name: "الكهف", englishName: "Al-Kahf", englishNameTranslation: "The Cave", number: 18 }, totalAyahs: 110 },
+  { number: 17, startSurah: { name: "الأنبياء", englishName: "Al-Anbiya", englishNameTranslation: "The Prophets", number: 21 }, totalAyahs: 112 },
+  { number: 18, startSurah: { name: "المؤمنون", englishName: "Al-Mu'minun", englishNameTranslation: "The Believers", number: 23 }, totalAyahs: 118 },
+  { number: 19, startSurah: { name: "الفرقان", englishName: "Al-Furqan", englishNameTranslation: "The Criterion", number: 25 }, totalAyahs: 77 },
+  { number: 20, startSurah: { name: "النمل", englishName: "An-Naml", englishNameTranslation: "The Ant", number: 27 }, totalAyahs: 93 },
+  { number: 21, startSurah: { name: "العنكبوت", englishName: "Al-Ankabut", englishNameTranslation: "The Spider", number: 29 }, totalAyahs: 69 },
+  { number: 22, startSurah: { name: "الأحزاب", englishName: "Al-Ahzab", englishNameTranslation: "The Clans", number: 33 }, totalAyahs: 73 },
+  { number: 23, startSurah: { name: "يس", englishName: "Ya-Sin", englishNameTranslation: "Ya-Sin", number: 36 }, totalAyahs: 83 },
+  { number: 24, startSurah: { name: "الزمر", englishName: "Az-Zumar", englishNameTranslation: "The Groups", number: 39 }, totalAyahs: 75 },
+  { number: 25, startSurah: { name: "فصلت", englishName: "Fussilat", englishNameTranslation: "Explained in Detail", number: 41 }, totalAyahs: 54 },
+  { number: 26, startSurah: { name: "الجاثية", englishName: "Al-Jathiyah", englishNameTranslation: "The Crouching", number: 45 }, totalAyahs: 37 },
+  { number: 27, startSurah: { name: "الذاريات", englishName: "Adh-Dhariyat", englishNameTranslation: "The Winnowing Winds", number: 51 }, totalAyahs: 60 },
+  { number: 28, startSurah: { name: "المجادلة", englishName: "Al-Mujadila", englishNameTranslation: "The Pleading Woman", number: 58 }, totalAyahs: 22 },
+  { number: 29, startSurah: { name: "الملك", englishName: "Al-Mulk", englishNameTranslation: "The Sovereignty", number: 67 }, totalAyahs: 30 },
+  { number: 30, startSurah: { name: "المعارج", englishName: "Al-Ma'arij", englishNameTranslation: "The Ascending Stairways", number: 70 }, totalAyahs: 44 },
+]
+
 interface SurahListProps {
   surahs: SurahListItem[]
   isLoading?: boolean
   showSeeAllSurah?: boolean
+  limitJuz?: number // Limit number of Juz to display (for homepage vs explore page)
+  preloadedJuzData?: JuzData[] // Pre-loaded Juz data from server
+  juzLoadingError?: boolean // Whether Juz loading failed
 }
 
-const JuzList = () => {
+const JuzList = ({ limitJuz, preloadedJuzData, juzLoadingError }: { 
+  limitJuz?: number
+  preloadedJuzData?: JuzData[]
+  juzLoadingError?: boolean
+}) => {
   const [mounted, setMounted] = useState(false)
   const [juzData, setJuzData] = useState<JuzData[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -46,20 +87,90 @@ const JuzList = () => {
 
   useEffect(() => {
     setMounted(true)
+    
+    // If we have pre-loaded data, use it immediately
+    if (preloadedJuzData && preloadedJuzData.length > 0) {
+      setJuzData(preloadedJuzData)
+      setIsLoading(false)
+      return
+    }
+    
+    // If pre-loading failed, use static data
+    if (juzLoadingError) {
+      const limitedStaticData = limitJuz ? STATIC_JUZ_DATA.slice(0, limitJuz) : STATIC_JUZ_DATA
+      setJuzData(limitedStaticData)
+      setIsLoading(false)
+      return
+    }
+    
+    // Otherwise, fetch from API (for explore page)
     const fetchAllJuz = async () => {
       try {
-        const promises = Array.from({ length: 30 }, (_, i) => getJuzById(i + 1))
-        const results = await Promise.all(promises)
-        setJuzData(results)
+        // For homepage (limited Juz), try to fetch with shorter timeout
+        // For explore page, use batch loading
+        const totalJuz = limitJuz || 30
+        const results: JuzData[] = []
+        
+        if (limitJuz && limitJuz <= 18) {
+          // Homepage: Try to fetch all at once with timeout
+          try {
+            const promises = Array.from({ length: totalJuz }, (_, i) => getJuzById(i + 1))
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('API timeout')), 5000) // 5 second timeout
+            )
+            
+            const apiResults = await Promise.race([
+              Promise.all(promises),
+              timeoutPromise
+            ]) as JuzData[]
+            
+            results.push(...apiResults)
+          } catch (apiError) {
+            console.log("API fetch failed, using static data")
+            // Fall through to static data
+          }
+        } else {
+          // Explore page: Use batch loading
+          const batchSize = 5
+          for (let i = 0; i < totalJuz; i += batchSize) {
+            const batch = Array.from({ length: Math.min(batchSize, totalJuz - i) }, (_, j) => 
+              getJuzById(i + j + 1)
+            )
+            
+            try {
+              const batchResults = await Promise.all(batch)
+              results.push(...batchResults)
+              
+              // Small delay between batches to avoid rate limiting
+              if (i + batchSize < totalJuz) {
+                await new Promise(resolve => setTimeout(resolve, 500))
+              }
+            } catch (batchError) {
+              console.error(`Error fetching batch ${i + 1}-${i + batchSize}:`, batchError)
+              // Continue with next batch even if one fails
+            }
+          }
+        }
+        
+        if (results.length > 0) {
+          setJuzData(results)
+        } else {
+          // If no API data was fetched, use static data with limit
+          const limitedStaticData = limitJuz ? STATIC_JUZ_DATA.slice(0, limitJuz) : STATIC_JUZ_DATA
+          setJuzData(limitedStaticData)
+        }
       } catch (error) {
         console.error("Error fetching juz data:", error)
+        // Use static data as fallback with limit
+        const limitedStaticData = limitJuz ? STATIC_JUZ_DATA.slice(0, limitJuz) : STATIC_JUZ_DATA
+        setJuzData(limitedStaticData)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchAllJuz()
-  }, [])
+  }, [preloadedJuzData, juzLoadingError, limitJuz])
 
   if (!mounted || isLoading) {
     return (
@@ -93,6 +204,7 @@ const JuzList = () => {
       )
     })
     .sort((a, b) => (isJuzAsc ? a.number - b.number : b.number - a.number))
+
 
   return (
     <>
@@ -155,7 +267,7 @@ const JuzList = () => {
   )
 }
 
-export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }: SurahListProps) {
+export default function SurahList({ surahs, isLoading, showSeeAllSurah = false, limitJuz, preloadedJuzData, juzLoadingError }: SurahListProps) {
   const { navigateWithLoading } = useNavigationLoading()
   const [mounted, setMounted] = useState(false)
   const [surahQuery, setSurahQuery] = useState("")
@@ -332,7 +444,11 @@ export default function SurahList({ surahs, isLoading, showSeeAllSurah = false }
           </div>
         </TabsContent>
         <TabsContent value="juz">
-          <JuzList />
+          <JuzList 
+            limitJuz={limitJuz} 
+            preloadedJuzData={preloadedJuzData}
+            juzLoadingError={juzLoadingError}
+          />
         </TabsContent>
         <TabsContent value="hadith">
           <div className="text-center py-8 text-gray-500">

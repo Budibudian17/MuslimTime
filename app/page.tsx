@@ -2,18 +2,25 @@ import HeroSection from "@/components/hero-section"
 import SurahList, { SurahListItem } from "@/components/surah-list"
 import Sidebar from "@/components/sidebar"
 import PrayerTimes from "@/components/prayer-times"
-import { getAllSurahs } from "@/lib/services/quran"
+import { getAllSurahs, getJuzById } from "@/lib/services/quran"
 import Footer from "@/components/footer"
 
 export default async function HomePage() {
   let surahs: SurahListItem[] = []
+  let juzData: any[] = []
   let isError = false
+  let juzError = false
+  
   try {
     const response = await getAllSurahs()
     surahs = response.data
   } catch (e) {
     isError = true
   }
+
+  // Skip server-side Juz loading to avoid API issues
+  // Let client-side handle Juz loading with fallback
+  juzError = false // Will use static data fallback
 
   // Batasi hanya 18 surah pertama
   const limitedSurahs = surahs.slice(0, 18)
@@ -26,7 +33,13 @@ export default async function HomePage() {
           <div className="lg:w-2/3">
             <div className="space-y-8">
               <PrayerTimes />
-              <SurahList surahs={limitedSurahs} isLoading={isError || surahs.length === 0} showSeeAllSurah />
+              <SurahList 
+                surahs={limitedSurahs} 
+                isLoading={isError || surahs.length === 0} 
+                showSeeAllSurah 
+                limitJuz={18}
+                juzLoadingError={juzError}
+              />
             </div>
           </div>
           <div className="lg:w-1/3 mt-8 lg:mt-0">
