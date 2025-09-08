@@ -242,6 +242,32 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
     router.push(`/surah/${randomSurahNumber}`);
   };
 
+  // Ensure next/prev navigation starts at the top
+  const scrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } catch {}
+    try {
+      translationScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+      arabicScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+    } catch {}
+  };
+
+  // Navigate to previous/next surah
+  const handlePrevSurah = () => {
+    if (initialData.id > 1) {
+      scrollToTop();
+      router.push(`/surah/${initialData.id - 1}`);
+    }
+  };
+
+  const handleNextSurah = () => {
+    if (initialData.id < 114) {
+      scrollToTop();
+      router.push(`/surah/${initialData.id + 1}`);
+    }
+  };
+
   // Handle ayah click for tracking
   const handleAyahClick = (ayahNumber: number) => {
     setCurrentAyah(ayahNumber);
@@ -590,6 +616,39 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                   </div>
                 ))}
               </div>
+
+              {/* End-of-Reading Navigation (inline, non-floating) */}
+              <div className="px-4 pb-6">
+                <div className="max-w-3xl mx-auto mt-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 shadow-sm p-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Reached the end. Continue reading?
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      {initialData.id > 1 && (
+                        <Button
+                          variant="outline"
+                          className="w-full sm:w-auto"
+                          onClick={handlePrevSurah}
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-2" />
+                          Previous Surah
+                        </Button>
+                      )}
+                      {initialData.id < 114 && (
+                        <Button
+                          variant="outline"
+                          className="w-full sm:w-auto"
+                          onClick={handleNextSurah}
+                        >
+                          Next Surah
+                          <ChevronRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Audio Player */}
@@ -668,6 +727,8 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
           </>
         )}
       </div>
+
+      
     </div>
   );
 } 

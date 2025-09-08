@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { ChevronLeft, X, Play, Pause, SkipBack, SkipForward, Shuffle, Info, Menu, ChevronRight, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -52,6 +53,7 @@ interface JuzDetailProps {
 }
 
 export default function JuzDetail({ initialData }: JuzDetailProps) {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -96,6 +98,11 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
     if (hasNextSurah) {
       setCurrentSurahIndex(prev => prev + 1)
       setCurrentAyah(surahGroups[currentSurahIndex + 1].ayahs[0].number)
+      try {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        translationScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+        arabicScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+      } catch {}
     }
   }
 
@@ -103,6 +110,30 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
     if (hasPrevSurah) {
       setCurrentSurahIndex(prev => prev - 1)
       setCurrentAyah(surahGroups[currentSurahIndex - 1].ayahs[0].number)
+      try {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        translationScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+        arabicScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' })
+      } catch {}
+    }
+  }
+
+  // Navigate to previous/next Juz (1-30)
+  const handlePrevJuz = () => {
+    if (initialData.number > 1) {
+      try {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      } catch {}
+      router.push(`/juz/${initialData.number - 1}`)
+    }
+  }
+
+  const handleNextJuz = () => {
+    if (initialData.number < 30) {
+      try {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      } catch {}
+      router.push(`/juz/${initialData.number + 1}`)
     }
   }
 
@@ -249,7 +280,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
           className={`mb-6 transition-colors duration-300 ${
             currentAyah === ayah.number 
               ? 'text-sky-600' 
-              : 'text-gray-800'
+              : 'text-gray-800 dark:text-gray-200'
           }`}
         >
           {ayah.text}
@@ -273,7 +304,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Link href="/">
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-neutral-800">
                     <X className="h-5 w-5" />
                   </Button>
                 </Link>
@@ -285,9 +316,9 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                   <span>{currentSurah.englishNameTranslation}</span>
-                  <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
                   <span>Juz {initialData.number}</span>
-                  <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
                   <span>Ayat {currentSurah.ayahRange.start}-{currentSurah.ayahRange.end}</span>
                 </p>
               </div>
@@ -301,7 +332,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-gray-600 hover:text-sky-600"
+                    className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-500"
                     onClick={() => setShowMushafView(false)}
                   >
                     <LayoutGrid className="h-5 w-5" />
@@ -324,16 +355,16 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                           <div className="space-y-1">
-                            <div className="text-sm font-medium text-gray-500">Juz</div>
-                            <div className="text-sm md:text-base text-gray-700">{initialData.number}</div>
+                            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Juz</div>
+                            <div className="text-sm md:text-base text-gray-700 dark:text-gray-200">{initialData.number}</div>
                           </div>
                           <div className="space-y-1">
-                            <div className="text-sm font-medium text-gray-500">Ayat Range</div>
-                            <div className="text-sm md:text-base text-gray-700">{currentSurah.ayahRange.start}-{currentSurah.ayahRange.end}</div>
+                            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Ayat Range</div>
+                            <div className="text-sm md:text-base text-gray-700 dark:text-gray-200">{currentSurah.ayahRange.start}-{currentSurah.ayahRange.end}</div>
                           </div>
                           <div className="space-y-1">
-                            <div className="text-sm font-medium text-gray-500">Translation</div>
-                            <div className="text-sm md:text-base text-gray-700">{currentSurah.englishNameTranslation}</div>
+                            <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Translation</div>
+                            <div className="text-sm md:text-base text-gray-700 dark:text-gray-200">{currentSurah.englishNameTranslation}</div>
                           </div>
                         </div>
                       </div>
@@ -397,7 +428,9 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       ayahRefs.current[ayah.number] = el;
                     }}
                     className={`transition-colors duration-300 ${
-                      currentAyah === ayah.number ? 'bg-sky-50/80 rounded-lg' : ''
+                      currentAyah === ayah.number 
+                        ? 'bg-sky-500/10 dark:bg-sky-500/10 outline outline-1 outline-sky-300/40 dark:outline-sky-700/40 rounded-lg' 
+                        : ''
                     }`}
                   >
                     {/* Mobile Layout: Vertical Stack */}
@@ -405,7 +438,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       {/* Arabic Text - Top */}
                       <div className="flex items-start justify-end gap-3 mb-4">
                         <p className={`text-2xl font-arabic leading-relaxed text-right flex-1 ${
-                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800'
+                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200'
                         }`} style={{ direction: 'rtl' }}>
                           {ayah.text}
                         </p>
@@ -413,7 +446,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                           <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm border ${
                             currentAyah === ayah.number 
                               ? 'bg-sky-100 text-sky-600 border-sky-300' 
-                              : 'bg-sky-50 text-sky-600 border-sky-200'
+                              : 'bg-sky-50 dark:bg-neutral-800 text-sky-600 border-sky-200 dark:border-gray-700'
                           }`}>
                             {ayah.numberInSurah}
                           </span>
@@ -422,7 +455,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       
                       {/* Translation - Bottom */}
                       <p className={`text-base leading-relaxed ${
-                        currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700'
+                        currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300'
                       }`}>
                         {ayah.translation}
                       </p>
@@ -433,7 +466,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       {/* Translation - Left Side */}
                       <div className="w-[50%] pl-6 py-4">
                         <p className={`text-lg leading-relaxed pr-4 ${
-                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700'
+                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300'
                         }`}>
                           {ayah.translation}
                         </p>
@@ -443,7 +476,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       <div className="w-[50%] flex items-start justify-end pr-6 py-4">
                         <div className="flex items-start gap-4">
                           <p className={`text-3xl font-arabic leading-relaxed text-right ${
-                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800'
+                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200'
                           }`} style={{ direction: 'rtl' }}>
                             {ayah.text}
                           </p>
@@ -451,7 +484,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                             <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm border ${
                               currentAyah === ayah.number 
                                 ? 'bg-sky-100 text-sky-600 border-sky-300' 
-                                : 'bg-sky-50 text-sky-600 border-sky-200'
+                                : 'bg-sky-50 dark:bg-neutral-800 text-sky-600 border-sky-200 dark:border-gray-700'
                             }`}>
                               {ayah.numberInSurah}
                             </span>
@@ -462,50 +495,73 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                   </div>
                 ))}
               </div>
+
+              {/* End-of-Reading Navigation within Juz (inline) */}
+              <div className="px-4 pb-6">
+                <div className="max-w-3xl mx-auto mt-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 shadow-sm p-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        Reached the end of this Surah part in Juz {initialData.number}.
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        {hasPrevSurah && (
+                          <Button variant="outline" className="w-full sm:w-auto" onClick={handlePrevSurah}>
+                            <ChevronLeft className="h-4 w-4 mr-2" />
+                            Previous Surah Part
+                          </Button>
+                        )}
+                        {hasNextSurah && (
+                          <Button variant="outline" className="w-full sm:w-auto" onClick={handleNextSurah}>
+                            Next Surah Part
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        Continue to another Juz?
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        {initialData.number > 1 && (
+                          <Button variant="outline" className="w-full sm:w-auto" onClick={handlePrevJuz}>
+                            <ChevronLeft className="h-4 w-4 mr-2" />
+                            Previous Juz
+                          </Button>
+                        )}
+                        {initialData.number < 30 && (
+                          <Button variant="outline" className="w-full sm:w-auto" onClick={handleNextJuz}>
+                            Next Juz
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </>
         )}
 
-        {/* Navigation Buttons */}
-        <div className="fixed bottom-24 left-0 right-0 flex justify-center gap-4 pointer-events-none">
-          <div className="flex gap-2 pointer-events-auto">
-            {hasPrevSurah && (
-              <Button
-                variant="outline"
-                className="bg-white shadow-lg hover:bg-gray-50"
-                onClick={handlePrevSurah}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous Surah
-              </Button>
-            )}
-            {hasNextSurah && (
-              <Button
-                variant="outline"
-                className="bg-white shadow-lg hover:bg-gray-50"
-                onClick={handleNextSurah}
-              >
-                Next Surah
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            )}
-          </div>
-        </div>
+        {/* Removed floating navigation; replaced with inline sections above */}
 
         {/* Audio Player */}
-        <div className="border-t bg-white">
+        <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900">
           <div className="px-6 py-3">
             <div className="flex flex-col space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-800">{currentSurah.englishName}</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{currentSurah.englishName}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
               
               {/* Progress Bar */}
               <div 
-                className="relative w-full h-1 bg-gray-100 rounded-full overflow-hidden cursor-pointer"
+                className="relative w-full h-1 bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden cursor-pointer"
                 onClick={handleProgressClick}
               >
                 <div 
@@ -516,7 +572,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
 
               {/* Controls */}
               <div className="flex items-center justify-center gap-4">
-                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
+                <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
                   <SkipBack className="h-5 w-5" />
                 </Button>
                 <Button 
@@ -531,7 +587,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                     <Play className="h-5 w-5" />
                   )}
                 </Button>
-                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
+                <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
                   <SkipForward className="h-5 w-5" />
                 </Button>
               </div>

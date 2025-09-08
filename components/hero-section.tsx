@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/contexts/AuthContext"
 import { useUserCount } from "@/lib/contexts/UserCountContext"
 import { UserMenu } from "@/components/auth/UserMenu"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function HeroSection() {
   const [isLoading, setIsLoading] = useState(true)
@@ -87,15 +88,27 @@ export default function HeroSection() {
 
   return (
     <section className="relative bg-gradient-to-br from-sky-400 to-blue-500 dark:from-slate-900 dark:to-slate-800 text-white p-8 md:p-12 rounded-3xl overflow-hidden min-h-[550px] flex flex-col">
-      {/* Background mosque silhouette - simplified */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: resolvedTheme === 'dark' ? `url('/night.png')` : `url('/5.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      {/* Background images preloaded for instant theme switch */}
+      <div className="absolute inset-0 pointer-events-none select-none">
+        {/* Light image */}
+        <Image
+          src="/5.png"
+          alt="background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-10 dark:opacity-0"
+        />
+        {/* Dark image */}
+        <Image
+          src="/night.png"
+          alt="background dark"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-0 dark:opacity-15"
+        />
+      </div>
 
       {/* Integrated Navbar */}
       <div className="relative z-10 flex items-center justify-between mb-8 -mt-10">
