@@ -111,14 +111,14 @@ export default function HeroSection() {
       </div>
 
       {/* Integrated Navbar */}
-      <div className="relative z-10 flex items-center justify-between mb-8 -mt-10">
+      <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8 mt-0 md:-mt-10">
         <div className="flex items-center space-x-2">
           <img
             src="/logo.png"
             alt="Qolb Logo"
-            className="h-20 w-20"
+            className="h-12 w-12 md:h-20 md:w-20"
           />
-          <span className="font-bold text-3xl text-white">MuslimTime</span>
+          <span className="font-bold text-2xl md:text-3xl text-white">MuslimTime</span>
         </div>
         <nav className="hidden md:flex items-center space-x-6 text-white/90">
           {/* <a href="#" className="hover:text-white">
@@ -128,7 +128,7 @@ export default function HeroSection() {
             About Us
           </a>
         </nav>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4">
           <Button
             variant="ghost"
             size="icon"
@@ -148,10 +148,10 @@ export default function HeroSection() {
             <UserMenu />
           ) : (
             <div className="flex items-center space-x-2">
-              <Button asChild variant="ghost" className="text-white/90 hover:text-white">
+              <Button asChild variant="ghost" className="text-white/90 hover:text-white px-2 h-8 text-sm">
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button asChild className="bg-white hover:bg-gray-100 text-sky-600 rounded-full px-6 py-2 text-sm font-semibold">
+              <Button asChild className="hidden md:inline-flex bg-white hover:bg-gray-100 text-sky-600 rounded-full px-6 py-2 text-sm font-semibold">
                 <Link href="/register">Sign Up</Link>
               </Button>
             </div>
@@ -160,8 +160,8 @@ export default function HeroSection() {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex-grow flex flex-col justify-center mt-10">
-        <h1 className="text-4xl md:text-5xl font-bold max-w-2xl">Read Quran, Listen to Murottal, and Track Prayer Times.</h1>
+      <div className="relative z-10 flex-grow flex flex-col justify-center mt-6 md:mt-10">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-2xl leading-tight">Read Quran, Listen to Murottal, and Track Prayer Times.</h1>
         <div className="mt-4 flex items-center space-x-2">
           <div className="flex -space-x-2">
             <Avatar className="h-8 w-8 border-2 border-white">
@@ -200,9 +200,11 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom Content */}
-      <div className="relative z-10 mt-8 grid md:grid-cols-2 gap-6 items-end">
-        <MiniMusicPlayer />
-        <div className="ml-auto">
+      <div className="relative z-10 mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-end">
+        <div className="w-full">
+          <MiniMusicPlayer />
+        </div>
+        <div className="ml-auto w-full">
           <p className="text-sm mb-3 max-w-md">
             Access the complete Quran, listen to beautiful recitations from renowned reciters, and never miss a prayer with our accurate prayer time schedules.
           </p>
