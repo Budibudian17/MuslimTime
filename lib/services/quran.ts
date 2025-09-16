@@ -1,9 +1,20 @@
 import { QuranResponse } from '../types/quran';
+import { offlineStorage } from './offline-storage';
 
 const QURAN_API_BASE_URL = 'https://api.alquran.cloud/v1';
 
 export async function getAllSurahs(): Promise<QuranResponse> {
   try {
+    // Check if we're online
+    if (!offlineStorage.isOnline()) {
+      console.log('Offline mode: Getting cached surah list');
+      const cachedData = await offlineStorage.getCachedSurahList();
+      if (cachedData) {
+        return { data: cachedData, code: 200, status: 'OK' };
+      }
+      throw new Error('No cached data available offline');
+    }
+
     const response = await fetch(`${QURAN_API_BASE_URL}/surah`, {
       next: {
         revalidate: 3600 // Cache for 1 hour
@@ -20,15 +31,39 @@ export async function getAllSurahs(): Promise<QuranResponse> {
       throw new Error('Invalid response format from Quran API');
     }
 
+    // Cache the data for offline use
+    await offlineStorage.cacheSurahList(data.data);
+    console.log('Surah list cached for offline use');
+
     return data;
   } catch (error) {
     console.error('Error fetching surahs:', error);
+    
+    // Try to get cached data as fallback
+    if (offlineStorage.isOnline()) {
+      console.log('Online but API failed, trying cached data');
+      const cachedData = await offlineStorage.getCachedSurahList();
+      if (cachedData) {
+        return { data: cachedData, code: 200, status: 'OK' };
+      }
+    }
+    
     throw error;
   }
 }
 
 export async function getSurahById(id: number) {
   try {
+    // Check if we're online
+    if (!offlineStorage.isOnline()) {
+      console.log('Offline mode: Getting cached surah data');
+      const cachedData = await offlineStorage.getCachedSurah(id);
+      if (cachedData) {
+        return cachedData;
+      }
+      throw new Error('No cached surah data available offline');
+    }
+
     // Fetch surah data
     const surahResponse = await fetch(`${QURAN_API_BASE_URL}/surah/${id}`, {
       next: {
@@ -59,7 +94,7 @@ export async function getSurahById(id: number) {
     const surah = surahData.data;
     const translation = translationData.data;
 
-    return {
+    const surahDataCombined = {
       id: surah.number,
       nameEn: surah.englishName,
       nameAr: surah.name,
@@ -75,8 +110,24 @@ export async function getSurahById(id: number) {
       })),
       audioUrl: `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`
     };
+
+    // Cache the data for offline use
+    await offlineStorage.cacheSurah(id, surahDataCombined);
+    console.log(`Surah ${id} cached for offline use`);
+
+    return surahDataCombined;
   } catch (error) {
     console.error('Error fetching surah:', error);
+    
+    // Try to get cached data as fallback
+    if (offlineStorage.isOnline()) {
+      console.log('Online but API failed, trying cached data');
+      const cachedData = await offlineStorage.getCachedSurah(id);
+      if (cachedData) {
+        return cachedData;
+      }
+    }
+    
     throw error;
   }
 }

@@ -31,7 +31,7 @@ A serene, Islamic-themed web app to read the Qur'an, listen to beautiful recitat
   - Mobile‑first, desktop‑ready
 
 ## Tech Stack 🧰
-- Next.js 14 (App Router) + TypeScript
+- Next.js 15+ (App Router) + TypeScript
 - Firebase (Auth, Firestore, Storage)
 - Tailwind CSS + Shadcn UI
 - Nodemailer (Gmail SMTP) for emails/OTP

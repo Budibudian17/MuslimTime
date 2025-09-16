@@ -1,0 +1,67 @@
+{
+  "name": "MuslimTime - Aplikasi Islami",
+  "short_name": "MuslimTime",
+  "description": "Aplikasi untuk waktu sholat, Al-Quran, dan konten Islami",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0ea5e9",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id",
+  "categories": ["religion", "lifestyle", "education"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/mokupmuslimtime.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "features": [
+    "Offline Quran Reading",
+    "Prayer Times",
+    "Audio Murottal",
+    "Dark/Light Theme"
+  ],
+  "shortcuts": [
+    {
+      "name": "Baca Quran",
+      "short_name": "Quran",
+      "description": "Baca Al-Quran secara offline",
+      "url": "/surah",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Waktu Sholat",
+      "short_name": "Prayer",
+      "description": "Lihat waktu sholat",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

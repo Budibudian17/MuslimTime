@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Clock, MapPin, RefreshCw, Globe2 } from "lucide-react"
+import { Clock, MapPin, RefreshCw, Globe2, WifiOff } from "lucide-react"
 import Link from "next/link"
 import { useNavigationLoading } from "@/hooks/use-navigation-loading"
+import { offlineStorage } from "@/lib/services/offline-storage"
+import { offlinePrayerCalculator } from "@/lib/services/offline-prayer-calculator"
 
 interface PrayerTime {
   name: string
@@ -26,10 +28,46 @@ export default function PrayerTimes() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isOffline, setIsOffline] = useState(false)
   const { navigateWithLoading } = useNavigationLoading()
 
   const fetchPrayerTimes = async (latitude: number, longitude: number) => {
     try {
+      const locationKey = `${latitude.toFixed(2)}_${longitude.toFixed(2)}`
+      
+      // Check if we're offline
+      if (!offlineStorage.isOnline()) {
+        setIsOffline(true)
+        console.log('Offline mode: Using cached prayer times')
+        
+        // Try to get cached prayer times
+        const cachedTimes = await offlineStorage.getCachedPrayerTimes(locationKey)
+        if (cachedTimes) {
+          setPrayerTimes(cachedTimes)
+          return
+        }
+        
+        // If no cached data, calculate offline
+        console.log('No cached data, calculating prayer times offline')
+        const calculatedTimes = offlinePrayerCalculator.calculatePrayerTimes(
+          latitude, longitude, new Date(), 7 // Indonesia timezone
+        )
+        
+        const prayerTimesData = [
+          { name: "Fajr", arabicName: "الفجر", time: calculatedTimes.fajr },
+          { name: "Sunrise", arabicName: "الشروق", time: calculatedTimes.sunrise },
+          { name: "Dhuhr", arabicName: "الظهر", time: calculatedTimes.dhuhr },
+          { name: "Asr", arabicName: "العصر", time: calculatedTimes.asr },
+          { name: "Maghrib", arabicName: "المغرب", time: calculatedTimes.maghrib },
+          { name: "Isha", arabicName: "العشاء", time: calculatedTimes.isha },
+        ]
+        
+        setPrayerTimes(prayerTimesData)
+        await offlineStorage.cachePrayerTimes(locationKey, prayerTimesData)
+        return
+      }
+
+      // Online mode - fetch from API
       const date = new Date()
       const response = await fetch(
         `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=2`
@@ -38,17 +76,44 @@ export default function PrayerTimes() {
 
       if (data.code === 200) {
         const timings = data.data.timings
-        setPrayerTimes([
+        const prayerTimesData = [
           { name: "Fajr", arabicName: "الفجر", time: timings.Fajr },
           { name: "Sunrise", arabicName: "الشروق", time: timings.Sunrise },
           { name: "Dhuhr", arabicName: "الظهر", time: timings.Dhuhr },
           { name: "Asr", arabicName: "العصر", time: timings.Asr },
           { name: "Maghrib", arabicName: "المغرب", time: timings.Maghrib },
           { name: "Isha", arabicName: "العشاء", time: timings.Isha },
-        ])
+        ]
+        
+        setPrayerTimes(prayerTimesData)
+        await offlineStorage.cachePrayerTimes(locationKey, prayerTimesData)
+        setIsOffline(false)
       }
     } catch (err) {
-      setError("Failed to fetch prayer times")
+      console.error('Error fetching prayer times:', err)
+      
+      // Try offline calculation as fallback
+      try {
+        console.log('API failed, trying offline calculation')
+        const calculatedTimes = offlinePrayerCalculator.calculatePrayerTimes(
+          latitude, longitude, new Date(), 7
+        )
+        
+        const prayerTimesData = [
+          { name: "Fajr", arabicName: "الفجر", time: calculatedTimes.fajr },
+          { name: "Sunrise", arabicName: "الشروق", time: calculatedTimes.sunrise },
+          { name: "Dhuhr", arabicName: "الظهر", time: calculatedTimes.dhuhr },
+          { name: "Asr", arabicName: "العصر", time: calculatedTimes.asr },
+          { name: "Maghrib", arabicName: "المغرب", time: calculatedTimes.maghrib },
+          { name: "Isha", arabicName: "العشاء", time: calculatedTimes.isha },
+        ]
+        
+        setPrayerTimes(prayerTimesData)
+        setIsOffline(true)
+      } catch (offlineErr) {
+        console.error('Offline calculation failed:', offlineErr)
+        setError("Failed to fetch prayer times")
+      }
     }
   }
 
@@ -169,7 +234,17 @@ export default function PrayerTimes() {
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Prayer Times</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Prayer Times</h2>
+            {isOffline && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                <WifiOff className="h-3 w-3 text-orange-600 dark:text-orange-400" />
+                <span className="text-xs text-orange-700 dark:text-orange-300 font-medium">
+                  Offline
+                </span>
+              </div>
+            )}
+          </div>
           {location && (
             <>
               <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
