@@ -128,6 +128,19 @@ export class OfflineStorage {
     return await this.getCache('user_preferences')
   }
 
+  // Local profile photo (base64/data URL) per user id
+  async cacheLocalProfilePhoto(userId: string, dataUrl: string): Promise<void> {
+    await this.setCache(`local_profile_photo_${userId}`, dataUrl, 365 * 24 * 60 * 60 * 1000) // 1 year
+  }
+
+  async getLocalProfilePhoto(userId: string): Promise<string | null> {
+    return await this.getCache(`local_profile_photo_${userId}`)
+  }
+
+  async removeLocalProfilePhoto(userId: string): Promise<void> {
+    await this.removeCache(`local_profile_photo_${userId}`)
+  }
+
   async cacheReadingHistory(history: any[]): Promise<void> {
     await this.setCache('reading_history', history, 365 * 24 * 60 * 60 * 1000) // 1 year
   }

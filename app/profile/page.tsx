@@ -3,6 +3,8 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { updateUserProfile, updateUserPhoto, removeUserPhoto } from '@/lib/auth';
+import { offlineStorage } from '@/lib/services/offline-storage';
+import PhotoCropper from '@/components/photo/Cropper';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +41,8 @@ export default function ProfilePage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [localPhotoURL, setLocalPhotoURL] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Profile form data
@@ -131,6 +135,15 @@ export default function ProfilePage() {
     }
   };
 
+  // Load local photo on mount
+  React.useEffect(() => {
+    (async () => {
+      if (!user?.uid) return;
+      const local = await offlineStorage.getLocalProfilePhoto(user.uid);
+      if (local) setLocalPhotoURL(local);
+    })();
+  }, [user?.uid]);
+
   // Compress image function
   const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.8): Promise<File> => {
     return new Promise((resolve) => {
@@ -188,10 +201,12 @@ export default function ProfilePage() {
       return;
     }
 
-    // Create preview
+    // Read file to data URL for cropper
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPhotoPreview(e.target?.result as string);
+      const dataUrl = e.target?.result as string
+      setPhotoPreview(dataUrl)
+      setCropSrc(dataUrl)
     };
     reader.readAsDataURL(file);
 
@@ -200,21 +215,10 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
-      // Compress image before upload
-      const compressedFile = await compressImage(file, 800, 0.8);
-      
-      const { photoURL, error } = await updateUserPhoto(compressedFile);
-      
-      if (error) {
-        setMessage({ type: 'error', text: error });
-        setPhotoPreview(null);
-      } else {
-        setMessage({ type: 'success', text: 'Profile photo updated successfully!' });
-        refreshUser();
-        setPhotoPreview(null);
-      }
+      // Wait crop flow to finish; actual save happens in onCropConfirm
+      setMessage(null);
     } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred while uploading photo' });
+      setMessage({ type: 'error', text: 'Gagal memproses foto' });
       setPhotoPreview(null);
     } finally {
       setIsUploadingPhoto(false);
@@ -224,11 +228,40 @@ export default function ProfilePage() {
     }
   };
 
+  const handleCropConfirm = async (blob: Blob) => {
+    try {
+      // Convert blob to data URL
+      const dataUrl: string = await new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.readAsDataURL(blob);
+      })
+
+      if (user?.uid) {
+        await offlineStorage.cacheLocalProfilePhoto(user.uid, dataUrl);
+        setLocalPhotoURL(dataUrl);
+      }
+
+      setMessage({ type: 'success', text: 'Foto profil disimpan di perangkat ini.' });
+    } finally {
+      setIsUploadingPhoto(false)
+      setPhotoPreview(null)
+      setCropSrc(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
   const handleRemovePhoto = async () => {
     setIsUploadingPhoto(true);
     setMessage(null);
 
     try {
+      // Remove local first
+      if (user?.uid) {
+        await offlineStorage.removeLocalProfilePhoto(user.uid);
+        setLocalPhotoURL(null);
+      }
+
       const { error } = await removeUserPhoto();
       
       if (error) {
@@ -295,7 +328,7 @@ export default function ProfilePage() {
               {/* User Info Header */}
               <div className="text-center mb-8">
                 <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-white/30">
-                  <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+                  <AvatarImage src={localPhotoURL || user?.photoURL || undefined} alt={user?.displayName || 'User'} />
                   <AvatarFallback className="text-2xl bg-white/20 text-white">
                     {getInitials(user?.displayName)}
                   </AvatarFallback>
@@ -412,7 +445,7 @@ export default function ProfilePage() {
                       <div className="relative inline-block">
                         <Avatar className="h-32 w-32 mx-auto border-4 border-white/30">
                           <AvatarImage 
-                            src={photoPreview || user?.photoURL || undefined} 
+                            src={photoPreview || localPhotoURL || user?.photoURL || undefined} 
                             alt={user?.displayName || 'User'} 
                           />
                           <AvatarFallback className="text-3xl bg-white/20 text-white">
@@ -426,7 +459,7 @@ export default function ProfilePage() {
                         )}
                       </div>
                       <p className="text-white/70 text-sm mt-2">
-                        {user?.photoURL ? 'Current profile photo' : 'No profile photo yet'}
+                        {photoPreview || localPhotoURL || user?.photoURL ? 'Current profile photo' : 'No profile photo yet'}
                       </p>
                     </div>
 
@@ -646,6 +679,16 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {cropSrc && (
+        <PhotoCropper
+          src={cropSrc}
+          onCancel={() => {
+            setCropSrc(null)
+            setIsUploadingPhoto(false)
+          }}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </ProtectedRoute>
   );
 }

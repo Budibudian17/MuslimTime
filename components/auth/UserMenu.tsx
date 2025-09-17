@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { offlineStorage } from '@/lib/services/offline-storage';
 import { signOutUser } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,7 @@ import Link from 'next/link';
 
 export const UserMenu: React.FC = () => {
   const { user, refreshUser } = useAuth();
+  const [localPhoto, setLocalPhoto] = React.useState<string | null>(null);
 
   if (!user) {
     return null;
@@ -31,14 +33,24 @@ export const UserMenu: React.FC = () => {
     }
   };
 
-  // Refresh user data periodically to keep it up to date
+  // Load local avatar and refresh periodically
   useEffect(() => {
+    let isMounted = true;
+    const loadLocal = async () => {
+      if (user?.uid) {
+        const local = await offlineStorage.getLocalProfilePhoto(user.uid);
+        if (isMounted) setLocalPhoto(local);
+      }
+    };
+    loadLocal();
+
     const interval = setInterval(() => {
       refreshUser();
-    }, 30000); // Refresh every 30 seconds
+      loadLocal();
+    }, 30000);
 
-    return () => clearInterval(interval);
-  }, [refreshUser]);
+    return () => { isMounted = false; clearInterval(interval); };
+  }, [refreshUser, user?.uid]);
 
   const getInitials = (name: string | null) => {
     if (!name) return 'U';
@@ -55,7 +67,7 @@ export const UserMenu: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+            <AvatarImage src={localPhoto || user.photoURL || undefined} alt={user.displayName || 'User'} />
             <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
           </Avatar>
         </Button>

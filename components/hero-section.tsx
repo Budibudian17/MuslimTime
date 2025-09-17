@@ -10,11 +10,13 @@ import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useUserCount } from "@/lib/contexts/UserCountContext"
 import { UserMenu } from "@/components/auth/UserMenu"
+import { offlineStorage } from "@/lib/services/offline-storage"
 import Link from "next/link"
 import Image from "next/image"
 
 export default function HeroSection() {
   const [isLoading, setIsLoading] = useState(true)
+  const [userAvatars, setUserAvatars] = useState<string[]>([])
   const { user, loading: authLoading } = useAuth()
   const { formattedCount, isLoading: userCountLoading } = useUserCount()
   const { theme, setTheme, resolvedTheme } = useTheme()
@@ -32,6 +34,39 @@ export default function HeroSection() {
     }, 1500)
     return () => clearTimeout(timer)
   }, [])
+
+  // Load user avatars from local storage
+  useEffect(() => {
+    const loadUserAvatars = async () => {
+      try {
+        const cacheInfo = offlineStorage.getCacheInfo()
+        const avatarKeys = cacheInfo.items.filter(item => item.startsWith('local_profile_photo_'))
+        
+        const avatars: string[] = []
+        for (const key of avatarKeys.slice(0, 3)) { // Take first 3 avatars
+          const avatar = await offlineStorage.getCache(key)
+          if (avatar) {
+            avatars.push(avatar)
+          }
+        }
+        
+        // If we have current user's avatar and it's not in the list, add it
+        if (user?.uid) {
+          const currentUserAvatar = await offlineStorage.getLocalProfilePhoto(user.uid)
+          if (currentUserAvatar && !avatars.includes(currentUserAvatar)) {
+            avatars.unshift(currentUserAvatar) // Add current user's avatar first
+            avatars.splice(3) // Keep only 3 avatars
+          }
+        }
+        
+        setUserAvatars(avatars)
+      } catch (error) {
+        console.error('Error loading user avatars:', error)
+      }
+    }
+
+    loadUserAvatars()
+  }, [user?.uid])
 
   if (isLoading) {
     return (
@@ -164,18 +199,29 @@ export default function HeroSection() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-2xl leading-tight">Read Quran, Listen to Murottal, and Track Prayer Times.</h1>
         <div className="mt-4 flex items-center space-x-2">
           <div className="flex -space-x-2">
-            <Avatar className="h-8 w-8 border-2 border-white">
-              <AvatarImage src="/people.png" />
-              <AvatarFallback>U1</AvatarFallback>
-            </Avatar>
-            <Avatar className="h-8 w-8 border-2 border-white">
-              <AvatarImage src="/people.png" />
-              <AvatarFallback>U2</AvatarFallback>
-            </Avatar>
-            <Avatar className="h-8 w-8 border-2 border-white">
-              <AvatarImage src="/people.png" />
-              <AvatarFallback>U3</AvatarFallback>
-            </Avatar>
+            {userAvatars.length > 0 ? (
+              userAvatars.map((avatar, index) => (
+                <Avatar key={index} className="h-8 w-8 border-2 border-white">
+                  <AvatarImage src={avatar} />
+                  <AvatarFallback>U{index + 1}</AvatarFallback>
+                </Avatar>
+              ))
+            ) : (
+              <>
+                <Avatar className="h-8 w-8 border-2 border-white">
+                  <AvatarImage src="/people.png" />
+                  <AvatarFallback>U1</AvatarFallback>
+                </Avatar>
+                <Avatar className="h-8 w-8 border-2 border-white">
+                  <AvatarImage src="/people.png" />
+                  <AvatarFallback>U2</AvatarFallback>
+                </Avatar>
+                <Avatar className="h-8 w-8 border-2 border-white">
+                  <AvatarImage src="/people.png" />
+                  <AvatarFallback>U3</AvatarFallback>
+                </Avatar>
+              </>
+            )}
           </div>
           <p className="text-sm">
             {userCountLoading ? (

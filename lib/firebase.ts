@@ -7,7 +7,8 @@ const firebaseConfig = {
     apiKey: "AIzaSyCoy5NalIUJ-16FslBltcfTSK26RQnYMps",
     authDomain: "muslimtime-c4027.firebaseapp.com",
     projectId: "muslimtime-c4027",
-    storageBucket: "muslimtime-c4027.firebasestorage.app",
+    // NOTE: Firebase Storage bucket must use the appspot.com domain
+    storageBucket: "muslimtime-c4027.appspot.com",
     messagingSenderId: "688902933632",
     appId: "1:688902933632:web:9f2e660b1403decfc9aa65",
     measurementId: "G-XCZYRH8S03"
