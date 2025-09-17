@@ -40,7 +40,7 @@ A serene, Islamic-themed web app to read the Qur'an, listen to beautiful recitat
 
 ## Quick Start 🚀
 ### 1) Requirements
-- Node.js 18+
+- Node.js 22+
 - Firebase project
 - Gmail with 2FA + App Password (for real email sending)
 
