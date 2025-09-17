@@ -39,11 +39,20 @@ export default function HeroSection() {
   useEffect(() => {
     const loadUserAvatars = async () => {
       try {
+        // Check if this is first visit and preload default avatars
+        const hasVisited = localStorage.getItem('muslimtime_visited')
+        if (!hasVisited) {
+          console.log('First visit detected, preloading default avatars...')
+          await offlineStorage.preloadEssentialData()
+        }
+
         const cacheInfo = offlineStorage.getCacheInfo()
         const avatarKeys = cacheInfo.items.filter(item => item.startsWith('local_profile_photo_'))
         
         const avatars: string[] = []
-        for (const key of avatarKeys.slice(0, 3)) { // Take first 3 avatars
+        
+        // Load real user avatars first
+        for (const key of avatarKeys.slice(0, 3)) {
           const avatar = await offlineStorage.getCache(key)
           if (avatar) {
             avatars.push(avatar)
@@ -59,9 +68,23 @@ export default function HeroSection() {
           }
         }
         
-        setUserAvatars(avatars)
+        // If no real avatars, try to load default avatars for new users
+        if (avatars.length === 0) {
+          const defaultAvatars = []
+          for (let i = 0; i < 3; i++) {
+            const defaultAvatar = await offlineStorage.getCache(`default_avatar_${i}`)
+            if (defaultAvatar) {
+              defaultAvatars.push(defaultAvatar)
+            }
+          }
+          setUserAvatars(defaultAvatars)
+        } else {
+          setUserAvatars(avatars)
+        }
       } catch (error) {
         console.error('Error loading user avatars:', error)
+        // Fallback to empty array, will show placeholder images
+        setUserAvatars([])
       }
     }
 

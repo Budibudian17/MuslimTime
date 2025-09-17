@@ -8,21 +8,35 @@ import { Wifi, WifiOff, RefreshCw } from 'lucide-react'
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true)
   const [showOfflineAlert, setShowOfflineAlert] = useState(false)
+  const [showOnlineAlert, setShowOnlineAlert] = useState(false)
 
   useEffect(() => {
     // Set initial online status
-    setIsOnline(navigator.onLine)
+    const initialOnlineStatus = navigator.onLine
+    setIsOnline(initialOnlineStatus)
+    
+    // If user starts offline, show alert immediately
+    if (!initialOnlineStatus) {
+      setShowOfflineAlert(true)
+    }
     
     // Listen for online/offline events
     const handleOnline = () => {
       setIsOnline(true)
       setShowOfflineAlert(false)
+      setShowOnlineAlert(true)
       console.log('App is back online')
+      
+      // Auto hide online alert after 3 seconds
+      setTimeout(() => {
+        setShowOnlineAlert(false)
+      }, 3000)
     }
     
     const handleOffline = () => {
       setIsOnline(false)
       setShowOfflineAlert(true)
+      setShowOnlineAlert(false)
       console.log('App is offline')
     }
 
@@ -39,10 +53,15 @@ export default function OfflineIndicator() {
     window.location.reload()
   }
 
-  const handleDismiss = () => {
+  const handleDismissOffline = () => {
     setShowOfflineAlert(false)
   }
 
+  const handleDismissOnline = () => {
+    setShowOnlineAlert(false)
+  }
+
+  // Show offline alert
   if (!isOnline && showOfflineAlert) {
     return (
       <div className="fixed top-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
@@ -70,7 +89,7 @@ export default function OfflineIndicator() {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={handleDismiss}
+                onClick={handleDismissOffline}
                 className="text-orange-700 hover:bg-orange-100 dark:text-orange-300 dark:hover:bg-orange-800/30"
               >
                 ×
@@ -82,7 +101,8 @@ export default function OfflineIndicator() {
     )
   }
 
-  if (isOnline && showOfflineAlert) {
+  // Show online alert (when coming back online)
+  if (isOnline && showOnlineAlert) {
     return (
       <div className="fixed top-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
         <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
@@ -99,7 +119,7 @@ export default function OfflineIndicator() {
             <Button
               size="sm"
               variant="ghost"
-              onClick={handleDismiss}
+              onClick={handleDismissOnline}
               className="text-green-700 hover:bg-green-100 dark:text-green-300 dark:hover:bg-green-800/30"
             >
               ×

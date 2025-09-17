@@ -191,10 +191,30 @@ export class OfflineStorage {
     try {
       console.log('Preloading essential data for offline use...')
       
-      // This would be called when the app first loads
-      // to preload critical data for offline use
+      // Preload default avatars for new users
+      const defaultAvatars = [
+        '/people.png',
+        '/placeholder-user.jpg',
+        '/placeholder.svg'
+      ]
       
-      // For now, we'll just log that we're ready
+      // Store default avatars as base64 for offline use
+      for (let i = 0; i < defaultAvatars.length; i++) {
+        try {
+          const response = await fetch(defaultAvatars[i])
+          const blob = await response.blob()
+          const dataUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.readAsDataURL(blob)
+          })
+          
+          await this.setCache(`default_avatar_${i}`, dataUrl, 30 * 24 * 60 * 60 * 1000) // 30 days
+        } catch (error) {
+          console.warn(`Failed to preload default avatar ${i}:`, error)
+        }
+      }
+      
       console.log('Essential data preloaded successfully')
     } catch (error) {
       console.error('Error preloading essential data:', error)

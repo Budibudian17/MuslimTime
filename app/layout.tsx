@@ -6,6 +6,7 @@ import { UserCountProvider } from '@/lib/contexts/UserCountContext'
 import { LoadingProvider } from '@/lib/contexts/LoadingContext'
 import { ThemeProvider } from '@/components/theme-provider'
 import OfflineIndicator from '@/components/offline-indicator'
+import { offlineStorage } from '@/lib/services/offline-storage'
 
 export const metadata: Metadata = {
   title: 'MuslimTime - Aplikasi Islami',
@@ -53,6 +54,21 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="mask-icon" href="/logo.png" color="#0ea5e9" />
         <link rel="shortcut icon" href="/logo.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Auto preload essential data for new users
+              if (typeof window !== 'undefined') {
+                // Check if this is first visit
+                const hasVisited = localStorage.getItem('muslimtime_visited');
+                if (!hasVisited) {
+                  localStorage.setItem('muslimtime_visited', 'true');
+                  // Preload will be triggered by client-side components
+                }
+              }
+            `,
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
