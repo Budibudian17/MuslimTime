@@ -104,6 +104,15 @@ export class OfflineStorage {
     return await this.getCache('surah_list')
   }
 
+  // Reciters list cache (from editions API)
+  async cacheRecitersList(reciters: any[]): Promise<void> {
+    await this.setCache('reciters_list', reciters, 7 * 24 * 60 * 60 * 1000) // 7 days
+  }
+
+  async getCachedRecitersList(): Promise<any[] | null> {
+    return await this.getCache('reciters_list')
+  }
+
   async cacheJuz(juzId: number, juzData: any): Promise<void> {
     await this.setCache(`juz_${juzId}`, juzData, 7 * 24 * 60 * 60 * 1000) // 7 days
   }

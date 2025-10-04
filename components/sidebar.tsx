@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Play, SkipBack, SkipForward, History, Search, MoreVertical } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,6 +11,14 @@ import { useState, useEffect } from "react"
 import { useHistory } from "@/lib/contexts/HistoryContext"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  fetchReciters,
+  getPreferredReciterId,
+  setPreferredReciterId,
+  buildSurahAudioUrl,
+  getAllSurahs
+} from "@/lib/services/quran"
 
 const reciters = [
   { name: "Mishary Bin Rashid Alafasy", img: "/placeholder.svg?width=80&height=80&circle=true&text=MRA" },
@@ -217,7 +226,7 @@ export default function Sidebar() {
           <CardTitle className="text-xl font-semibold">Enjoy Holy Quran recited by your preferred reciters.</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="py-8 text-center text-gray-600 dark:text-gray-300">Coming Soon</div>
+          <RecitersBrowser />
         </CardContent>
       </Card>
 
@@ -230,6 +239,96 @@ export default function Sidebar() {
           <div className="py-8 text-center text-gray-600 dark:text-gray-300">Coming Soon</div>
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function RecitersBrowser() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [reciters, setReciters] = useState<Array<{ identifier: string; englishName: string; name: string }>>([])
+  const [filter, setFilter] = useState("")
+  const [selected, setSelected] = useState<string | null>(null)
+  const [surahList, setSurahList] = useState<Array<{ number: number; englishName: string; name: string }>>([])
+  const [showAll, setShowAll] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const [list, preferred, surahs] = await Promise.all([
+          fetchReciters().catch(() => []),
+          getPreferredReciterId().catch(() => null),
+          getAllSurahs().catch(() => null)
+        ])
+        if (!mounted) return
+        setReciters(list.map((r: any) => ({ identifier: r.identifier, englishName: r.englishName, name: r.name })))
+        if (surahs?.data) {
+          setSurahList(surahs.data.map((s: any) => ({ number: s.number, englishName: s.englishName, name: s.name })))
+        }
+        setSelected(preferred || null)
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const filtered = filter
+    ? reciters.filter(r => (r.englishName + " " + r.name + " " + r.identifier).toLowerCase().includes(filter.toLowerCase()))
+    : reciters
+  const displayed = (showAll ? filtered : filtered.slice(0, 5))
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2 items-center">
+        <Input
+          placeholder="Search reciters..."
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+        {selected && (
+          <span className="text-xs text-gray-600 dark:text-gray-300">Selected: {selected}</span>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="text-sm text-gray-500">Loading reciters...</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-2">
+          {displayed.map((r) => (
+            <button
+              key={r.identifier}
+              onClick={async () => {
+                setSelected(r.identifier)
+                await setPreferredReciterId(r.identifier as any)
+                router.push(`/reciters/${r.identifier}`)
+              }}
+              className={`text-left px-3 py-2 rounded border text-sm transition-all duration-200 hover:bg-sky-500 hover:text-white hover:shadow-2xl hover:scale-105 group ${
+                selected === r.identifier ? 'border-sky-500 text-sky-700 dark:text-sky-400' : 'border-gray-200 dark:border-gray-800'
+              }`}
+            >
+              <div className="font-medium transition-colors duration-200 group-hover:text-white">{r.englishName || r.name}</div>
+              <div className="text-xs text-gray-500 transition-colors duration-200 group-hover:text-white">{r.identifier}</div>
+            </button>
+          ))}
+          {filtered.length === 0 && (
+            <div className="text-xs text-gray-500">No reciters found</div>
+          )}
+          {!showAll && filtered.length > 5 && (
+            <Link
+              href="/reciters"
+              className="text-xs text-sky-600 hover:text-sky-700 self-start"
+            >
+              See All Reciters
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Surah list moved to /reciters/[id] page */}
     </div>
   )
 }

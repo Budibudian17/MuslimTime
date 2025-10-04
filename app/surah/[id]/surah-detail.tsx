@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useHistory } from "@/lib/contexts/HistoryContext";
 import { useLoading } from "@/lib/contexts/LoadingContext";
 import { saveReadingHistory } from "@/lib/services/history";
+import { buildSurahAudioUrl, getPreferredReciterId, setPreferredReciterId, fetchSurahAudioByReciter } from "@/lib/services/quran";
 
 interface SurahDetailProps {
   initialData: {
@@ -52,6 +53,8 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
   const [showMushafView, setShowMushafView] = useState(false);
   const [lastTrackedAyah, setLastTrackedAyah] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [audioSrc, setAudioSrc] = useState<string>(initialData.audioUrl);
+  const [ayahAudios, setAyahAudios] = useState<string[] | null>(null);
   const ayahRefs = useRef<{ [key: number]: HTMLElement | null }>({});
   const translationScrollRef = useRef<HTMLDivElement>(null);
   const arabicScrollRef = useRef<HTMLDivElement>(null);
@@ -63,6 +66,57 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
     // Hide loading when component is mounted
     setLoading(false);
   }, [setLoading]);
+
+  // Ensure audio source respects selected or preferred reciter
+  useEffect(() => {
+    const reciterParam = searchParams.get('reciter');
+    (async () => {
+      try {
+        const useId = (reciterParam as any) || (await getPreferredReciterId());
+        if (reciterParam) await setPreferredReciterId(useId as any);
+
+        // Only try verse-by-verse if explicitly selected from reciters page
+        if (reciterParam) {
+          try {
+            const vbyv = await fetchSurahAudioByReciter(initialData.id, useId as any);
+            if (vbyv?.ayahs?.length && vbyv.ayahs[0].audio) {
+              const sorted = [...vbyv.ayahs]
+                .sort((a: any, b: any) => a.numberInSurah - b.numberInSurah)
+                .map((a: any) => a.audio);
+              setAyahAudios(sorted);
+              setAudioSrc(sorted[Math.max(0, currentAyah - 1)]);
+              return;
+            }
+          } catch {}
+        }
+
+        // Default mode: full surah audio (works for default reciters like ar.alafasy)
+        const url = buildSurahAudioUrl(initialData.id, useId as any);
+        setAudioSrc(url);
+        setAyahAudios(null);
+      } catch {}
+    })();
+  }, [searchParams, initialData.id, initialData.audioUrl, currentAyah]);
+
+  // Update audio src when current ayah changes in verse-by-verse mode
+  useEffect(() => {
+    if (ayahAudios && ayahAudios.length >= currentAyah) {
+      const nextSrc = ayahAudios[currentAyah - 1];
+      if (nextSrc && nextSrc !== audioSrc) {
+        setAudioSrc(nextSrc);
+        // Auto-play when switching ayahs in verse-by-verse mode
+        setTimeout(() => {
+          try { 
+            if (audioRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+              }).catch(() => {});
+            }
+          } catch {}
+        }, 100); // Small delay to ensure audio element is updated
+      }
+    }
+  }, [currentAyah, ayahAudios, audioSrc]);
 
   // Initialize currentAyah from URL parameter
   useEffect(() => {
@@ -174,6 +228,18 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
     }
   };
 
+  // Next/Prev for verse-by-verse mode
+  const nextAyah = () => {
+    if (ayahAudios && currentAyah < initialData.verses) {
+      setCurrentAyah((n) => n + 1);
+    }
+  };
+  const prevAyah = () => {
+    if (ayahAudios && currentAyah > 1) {
+      setCurrentAyah((n) => n - 1);
+    }
+  };
+
   // Handle progress bar click
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (audioRef.current) {
@@ -184,6 +250,16 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
       const newTime = percentage * duration;
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
+    }
+  };
+
+  // Auto-advance when verse-by-verse ends
+  const handleEnded = () => {
+    if (ayahAudios && currentAyah < initialData.verses) {
+      setCurrentAyah((n) => n + 1);
+      // Audio will auto-play via the useEffect that watches currentAyah changes
+    } else {
+      setIsPlaying(false);
     }
   };
 
@@ -476,7 +552,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                     >
                       <Shuffle className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100" onClick={prevAyah} disabled={!ayahAudios}>
                       <SkipBack className="h-5 w-5" />
                     </Button>
                     <Button 
@@ -491,7 +567,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                         <Play className="h-5 w-5" />
                       )}
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100" onClick={nextAyah} disabled={!ayahAudios}>
                       <SkipForward className="h-5 w-5" />
                     </Button>
                     <Button 
@@ -510,10 +586,10 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
               {/* Hidden Audio Element */}
               <audio
                 ref={audioRef}
-                src={initialData.audioUrl}
+                src={audioSrc}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
+                onEnded={handleEnded}
               />
             </div>
           </div>
@@ -530,7 +606,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                     }}
                     className={`transition-colors duration-300 ${
                       currentAyah === ayah.number 
-                        ? 'bg-sky-500/10 dark:bg-sky-500/10 outline outline-1 outline-sky-300/40 dark:outline-sky-700/40 rounded-lg'
+                        ? 'bg-sky-100 dark:bg-sky-900/30 outline outline-1 outline-sky-300/60 dark:outline-sky-500/60 rounded-lg'
                         : ''
                     }`}
                   >
@@ -540,7 +616,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                       <div className="flex items-start justify-end gap-3 mb-4">
                         <p 
                           className={`text-2xl font-arabic leading-relaxed text-right flex-1 cursor-pointer ${
-                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200 hover:text-sky-600'
+                            currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-800 dark:text-gray-200 hover:text-sky-600'
                           }`} 
                           style={{ direction: 'rtl' }}
                           onClick={() => handleAyahClick(ayah.number)}
@@ -564,7 +640,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                       {/* Translation - Bottom */}
                       <p 
                         className={`text-base leading-relaxed cursor-pointer ${
-                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300 hover:text-sky-800'
+                          currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-700 dark:text-gray-300 hover:text-sky-800'
                         }`}
                         onClick={() => handleAyahClick(ayah.number)}
                       >
@@ -578,7 +654,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                       <div className="w-[50%] pl-6 py-4">
                         <p 
                           className={`text-lg leading-relaxed pr-4 cursor-pointer ${
-                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300 hover:text-sky-800'
+                            currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-700 dark:text-gray-300 hover:text-sky-800'
                           }`}
                           onClick={() => handleAyahClick(ayah.number)}
                         >
@@ -591,7 +667,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                         <div className="flex items-start gap-4">
                           <p 
                             className={`text-3xl font-arabic leading-relaxed text-right cursor-pointer ${
-                              currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200 hover:text-sky-600'
+                              currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-800 dark:text-gray-200 hover:text-sky-600'
                             }`} 
                             style={{ direction: 'rtl' }}
                             onClick={() => handleAyahClick(ayah.number)}
@@ -684,7 +760,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                     >
                       <Shuffle className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100" onClick={prevAyah} disabled={!ayahAudios}>
                       <SkipBack className="h-5 w-5" />
                     </Button>
                     <Button 
@@ -699,7 +775,7 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
                         <Play className="h-5 w-5" />
                       )}
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                    <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100" onClick={nextAyah} disabled={!ayahAudios}>
                       <SkipForward className="h-5 w-5" />
                     </Button>
                     <Button 
@@ -718,10 +794,10 @@ export default function SurahDetail({ initialData }: SurahDetailProps) {
               {/* Hidden Audio Element */}
               <audio
                 ref={audioRef}
-                src={initialData.audioUrl}
+                src={audioSrc}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
+                onEnded={handleEnded}
               />
             </div>
           </>

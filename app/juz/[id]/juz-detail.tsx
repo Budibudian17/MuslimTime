@@ -247,7 +247,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
           key={ayah.number}
           className={`transition-colors duration-300 ${
             currentAyah === ayah.number 
-              ? 'text-sky-900' 
+              ? 'text-sky-900 dark:text-sky-100' 
               : 'text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -429,7 +429,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                     }}
                     className={`transition-colors duration-300 ${
                       currentAyah === ayah.number 
-                        ? 'bg-sky-500/10 dark:bg-sky-500/10 outline outline-1 outline-sky-300/40 dark:outline-sky-700/40 rounded-lg' 
+                        ? 'bg-sky-100 dark:bg-sky-900/30 outline outline-1 outline-sky-300/60 dark:outline-sky-500/60 rounded-lg' 
                         : ''
                     }`}
                   >
@@ -438,7 +438,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       {/* Arabic Text - Top */}
                       <div className="flex items-start justify-end gap-3 mb-4">
                         <p className={`text-2xl font-arabic leading-relaxed text-right flex-1 ${
-                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200'
+                          currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-800 dark:text-gray-200'
                         }`} style={{ direction: 'rtl' }}>
                           {ayah.text}
                         </p>
@@ -455,7 +455,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       
                       {/* Translation - Bottom */}
                       <p className={`text-base leading-relaxed ${
-                        currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300'
+                        currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-700 dark:text-gray-300'
                       }`}>
                         {ayah.translation}
                       </p>
@@ -466,7 +466,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       {/* Translation - Left Side */}
                       <div className="w-[50%] pl-6 py-4">
                         <p className={`text-lg leading-relaxed pr-4 ${
-                          currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-700 dark:text-gray-300'
+                          currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-700 dark:text-gray-300'
                         }`}>
                           {ayah.translation}
                         </p>
@@ -476,7 +476,7 @@ export default function JuzDetail({ initialData }: JuzDetailProps) {
                       <div className="w-[50%] flex items-start justify-end pr-6 py-4">
                         <div className="flex items-start gap-4">
                           <p className={`text-3xl font-arabic leading-relaxed text-right ${
-                            currentAyah === ayah.number ? 'text-sky-900' : 'text-gray-800 dark:text-gray-200'
+                            currentAyah === ayah.number ? 'text-sky-900 dark:text-sky-100' : 'text-gray-800 dark:text-gray-200'
                           }`} style={{ direction: 'rtl' }}>
                             {ayah.text}
                           </p>
